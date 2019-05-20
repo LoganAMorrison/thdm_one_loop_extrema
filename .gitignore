@@ -32,6 +32,8 @@
 *.app
 
 .idea/*
+cmake-build-debug/*
 build/*
 bin/*
+plots/*.py
 

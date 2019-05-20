@@ -19,10 +19,10 @@
 using namespace thdm;
 
 std::ifstream infile;
-std::string in_fname = "/Users/loganmorrison/Documents/research/thdm_cpb_vev/cpp/rundata/initial_data.csv";
+std::string in_fname = "/Users/loganmorrison/Documents/research/thdm_cpb_vev/cpp/run_data/initial_data.csv";
 
 std::ofstream outfile;
-std::string out_fname = "/Users/loganmorrison/Documents/research/thdm_cpb_vev/cpp/rundata/refined_data.csv";
+std::string out_fname = "/Users/loganmorrison/Documents/research/thdm_cpb_vev/cpp/run_data/refined_data.csv";
 
 typedef std::tuple<Parameters<double>, Vacuum<double>, Vacuum<double>> Point;
 typedef std::tuple<Parameters<double>, Vacuum<double>, Vacuum<double>, DoubleExtremaType> GoodPoint;

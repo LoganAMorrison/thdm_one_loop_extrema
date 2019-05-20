@@ -20,8 +20,8 @@ using namespace thdm;
 size_t num_threads = 5;
 size_t pts_per_thread = 10000;
 boost::progress_display progress(pts_per_thread * num_threads);
-std::string fname = "/Users/loganmorrison/Documents/research/thdm_cpb_vev/cpp/rundata/initial_data.csv";
-std::ofstream ofile;
+std::string fname = "/Users/loganmorrison/Documents/research/thdm_cpb_vev/cpp/run_data/initial_data.csv";
+std::ofstream out_file;
 size_t POINT_COUNTER = 0;
 
 typedef std::tuple<Vacuum<double>, Vacuum<double>, Parameters<double>> Point;
@@ -76,26 +76,26 @@ Point generate_point(double mu) {
 void save_point(Point point) {
     // Lock mutex so only one thread is writing to file at a time.
     mtx.lock();
-    ofile.open(fname, std::ios_base::app);
-    ofile << std::setprecision(15);
+    out_file.open(fname, std::ios_base::app);
+    out_file << std::setprecision(15);
 
     auto nvac = std::get<0>(point);
     auto cbvac = std::get<1>(point);
     auto params = std::get<2>(point);
-    ofile << params.m112 << ",";
-    ofile << params.m122 << ",";
-    ofile << params.m222 << ",";
-    ofile << params.lam1 << ",";
-    ofile << params.lam2 << ",";
-    ofile << params.lam3 << ",";
-    ofile << params.lam4 << ",";
-    ofile << params.lam5 << ",";
-    ofile << nvac.vevs[0] << ",";
-    ofile << nvac.vevs[1] << ",";
-    ofile << cbvac.vevs[0] << ",";
-    ofile << cbvac.vevs[1] << ",";
-    ofile << cbvac.vevs[2] << "\n";
-    ofile.close();
+    out_file << params.m112 << ",";
+    out_file << params.m122 << ",";
+    out_file << params.m222 << ",";
+    out_file << params.lam1 << ",";
+    out_file << params.lam2 << ",";
+    out_file << params.lam3 << ",";
+    out_file << params.lam4 << ",";
+    out_file << params.lam5 << ",";
+    out_file << nvac.vevs[0] << ",";
+    out_file << nvac.vevs[1] << ",";
+    out_file << cbvac.vevs[0] << ",";
+    out_file << cbvac.vevs[1] << ",";
+    out_file << cbvac.vevs[2] << "\n";
+    out_file.close();
     mtx.unlock();
 }
 

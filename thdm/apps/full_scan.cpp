@@ -45,46 +45,39 @@ using namespace thdm;
 
 const size_t TOTAL_NUM_POINTS = 100000;
 size_t COUNTER = 0;
-size_t TYPEA1_COUNTER = 0;
-size_t TYPEA2_COUNTER = 0;
-size_t TYPEB_COUNTER = 0;
-size_t TYPEC_COUNTER = 0;
-std::string fname1 = "/Users/loganmorrison/Documents/research/thdm_cpb_vev/cpp/rundata/type_a1.csv";
-std::string fname2 = "/Users/loganmorrison/Documents/research/thdm_cpb_vev/cpp/rundata/type_a2.csv";
-//std::string fname3 = "/Users/loganmorrison/Documents/research/thdm_cpb_vev/cpp/rundata/type_b.csv";
-//std::string fname4 = "/Users/loganmorrison/Documents/research/thdm_cpb_vev/cpp/rundata/type_c.csv";
-std::ofstream ofile;
+size_t type_a1_counter = 0;
+size_t type_a2_counter = 0;
 
 std::mutex mtx;
 
 void save_point(Parameters<double> &params, Vacuum<double> &nvac,
-                Vacuum<double> &cbvac, std::string fname) {
-    // Lock mutex so only one thread is writing to file at a time.
-    mtx.lock();
-    ofile.open(fname, std::ios_base::app);
-    ofile << std::setprecision(15);
+                Vacuum<double> &cbvac, const std::string &file_name) {
 
-    ofile << params.m112 << ",";
-    ofile << params.m122 << ",";
-    ofile << params.m222 << ",";
-    ofile << params.lam1 << ",";
-    ofile << params.lam2 << ",";
-    ofile << params.lam3 << ",";
-    ofile << params.lam4 << ",";
-    ofile << params.lam5 << ",";
-    ofile << params.mu << "\n";
-    ofile << nvac.vevs[0] << ",";
-    ofile << nvac.vevs[1] << ",";
-    ofile << nvac.vevs[2] << ",";
-    ofile << cbvac.vevs[0] << ",";
-    ofile << cbvac.vevs[1] << ",";
-    ofile << cbvac.vevs[2] << "\n";
-    ofile.close();
+    std::ofstream out_file;
+    out_file.open(file_name, std::ios_base::app);
+    out_file << std::setprecision(15);
+
+    out_file << params.m112 << ",";
+    out_file << params.m122 << ",";
+    out_file << params.m222 << ",";
+    out_file << params.lam1 << ",";
+    out_file << params.lam2 << ",";
+    out_file << params.lam3 << ",";
+    out_file << params.lam4 << ",";
+    out_file << params.lam5 << ",";
+    out_file << params.mu << "\n";
+    out_file << nvac.vevs[0] << ",";
+    out_file << nvac.vevs[1] << ",";
+    out_file << nvac.vevs[2] << ",";
+    out_file << cbvac.vevs[0] << ",";
+    out_file << cbvac.vevs[1] << ",";
+    out_file << cbvac.vevs[2] << "\n";
+    out_file.close();
     mtx.unlock();
 }
 
 /**
- * Determine if model is type A1. If it is, store the noraml and
+ * Determine if model is type A1. If it is, store the normal and
  * charge breaking vacuua in the inputs.
  * @param model
  * @param nvac
@@ -155,8 +148,6 @@ bool is_type_b(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac) 
         return true;
     }
     return false;
-
-
 }
 
 bool is_type_c(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac) {
@@ -177,23 +168,22 @@ bool is_type_c(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac) 
         return true;
     }
     return false;
-
-
 }
 
 void display_counts() {
     std::cout << "Counts:   " << std::endl;
     std::cout << "----------" << std::endl;
-    std::cout << "Type A1 : " << TYPEA1_COUNTER << std::endl;
-    std::cout << "Type A2 : " << TYPEA2_COUNTER << std::endl;
-    //std::cout << "Type B  : " << TYPEB_COUNTER << std::endl;
-    //std::cout << "Type C  : " << TYPEC_COUNTER << std::endl;
+    std::cout << "Type A1 : " << type_a1_counter << std::endl;
+    std::cout << "Type A2 : " << type_a2_counter << std::endl;
     std::cout << "Total   : " << COUNTER << std::endl;
     std::cout << std::endl;
 }
 
 int main() {
     double mu = 246.0;
+    std::string project_path = "/Users/loganmorrison/CLionProjects/thdm_one_loop_extrema";
+    std::string a1_file_name = project_path + "/run_data/type_a1.csv";
+    std::string a2_file_name = project_path + "/run_data/type_a2.csv";
     //boost::progress_display progress(TOTAL_NUM_POINTS);
     while (COUNTER < TOTAL_NUM_POINTS) {
         try {
@@ -201,14 +191,14 @@ int main() {
             Vacuum<double> nvac{};
             Vacuum<double> cbvac{};
             if (is_type_a1(model, nvac, cbvac)) {
-                save_point(model.params, nvac, cbvac, fname1);
+                save_point(model.params, nvac, cbvac, a1_file_name);
                 COUNTER++;
-                TYPEA1_COUNTER++;
+                type_a1_counter++;
                 display_counts();
             } else if (is_type_a2(model, nvac, cbvac)) {
-                save_point(model.params, nvac, cbvac, fname2);
+                save_point(model.params, nvac, cbvac, a2_file_name);
                 COUNTER++;
-                TYPEA2_COUNTER++;
+                type_a2_counter++;
                 display_counts();
             }
         } catch (...) {

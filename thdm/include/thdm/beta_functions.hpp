@@ -20,7 +20,7 @@ public:
 
     ~RGESystem() = default;
 
-    double gs(double mu) {
+    static double gs(double mu) {
         return 8.88577 / sqrt(21.612 + 7.0 * log(mu));
     }
 
@@ -57,7 +57,7 @@ public:
                 9.0 / 4.0 * pow(g, 4) +
                 3.0 / 2.0 * pow(g, 2) * pow(gp, 2) +
                 3.0 / 4.0 * pow(gp, 4) -
-                4.0 * gamma_1() * lam1) / (16.0 * pow(M_PI, 2));
+                4.0 * gamma_1() * lam1);
     }
 
     double beta_lam2() {
@@ -78,7 +78,7 @@ public:
                 3.0 / 2.0 * pow(g, 2) * pow(gp, 2) +
                 3.0 / 4.0 * pow(gp, 4) -
                 4.0 * gamma_2() * lam2 -
-                12.0 * pow(yt, 4)) / (16.0 * pow(M_PI, 2));
+                12.0 * pow(yt, 4));
     }
 
     double beta_lam3() {
@@ -97,8 +97,7 @@ public:
                 9.0 / 4.0 * pow(g, 4) -
                 3.0 / 2.0 * pow(g, 2) * pow(gp, 2) +
                 3.0 / 4.0 * pow(gp, 4) -
-                2.0 * (gamma_1() + gamma_2()) * lam3) /
-                (16.0 * pow(M_PI, 2));
+                2.0 * (gamma_1() + gamma_2()) * lam3);
     }
 
     double beta_lam4() {
@@ -115,8 +114,7 @@ public:
                 4.0 * pow(lam4, 2) +
                 8.0 * pow(lam5, 2) -
                 2.0 * (gamma_1() + gamma_2()) * lam4 +
-                3.0 * pow(g, 2) * pow(gp, 2)) /
-                (16.0 * pow(M_PI, 2));
+                3.0 * pow(g, 2) * pow(gp, 2));
     }
 
     double beta_lam5() {
@@ -127,8 +125,7 @@ public:
         double lam5 = params.lam5;
 
         return lam5 * (lam1 + lam2 + 4.0 * lam3 + 6.0 * lam4 -
-                gamma_1() - gamma_2()) /
-                (8.0 * pow(M_PI, 2));
+                gamma_1() - gamma_2());
     }
 
     double beta_m112() {
@@ -140,7 +137,7 @@ public:
 
         return (6.0 * lam1 * m112 +
                 (4.0 * lam3 + 2.0 * lam4) * m222 -
-                2.0 * gamma_1() * m112) / (16.0 * pow(M_PI, 2));
+                2.0 * gamma_1() * m112);
     }
 
     double beta_m222() {
@@ -152,7 +149,7 @@ public:
 
         return (6.0 * lam2 * m222 +
                 (4.0 * lam3 + 2.0 * lam4) * m112 -
-                2.0 * gamma_2() * m222) / (16.0 * pow(M_PI, 2));
+                2.0 * gamma_2() * m222);
     }
 
     double beta_m122() {
@@ -162,7 +159,7 @@ public:
         double m122 = params.m122;
 
         return m122 * (2.0 * lam3 + 4.0 * lam4 + 6.0 * lam5 -
-                gamma_1() - gamma_2()) / (16.0 * pow(M_PI, 2));
+                gamma_1() - gamma_2());
     }
 
     double beta_yt() {
@@ -199,17 +196,17 @@ public:
 
         update_params(x, mu);
 
-        dxdt[0] = beta_m112() / mu;
-        dxdt[1] = beta_m122() / mu;
-        dxdt[2] = beta_m222() / mu;
-        dxdt[3] = beta_lam1() / mu;
-        dxdt[4] = beta_lam2() / mu;
-        dxdt[5] = beta_lam3() / mu;
-        dxdt[6] = beta_lam4() / mu;
-        dxdt[7] = beta_lam5() / mu;
-        dxdt[8] = beta_yt() / mu;
-        dxdt[9] = beta_gp() / mu;
-        dxdt[10] = beta_g() / mu;
+        dxdt[0] = beta_m112() / (mu * 16.0 * pow(M_PI, 2));
+        dxdt[1] = beta_m122() / (mu * 16.0 * pow(M_PI, 2));
+        dxdt[2] = beta_m222() / (mu * 16.0 * pow(M_PI, 2));
+        dxdt[3] = beta_lam1() / (mu * 16.0 * pow(M_PI, 2));
+        dxdt[4] = beta_lam2() / (mu * 16.0 * pow(M_PI, 2));
+        dxdt[5] = beta_lam3() / (mu * 16.0 * pow(M_PI, 2));
+        dxdt[6] = beta_lam4() / (mu * 16.0 * pow(M_PI, 2));
+        dxdt[7] = beta_lam5() / (mu * 16.0 * pow(M_PI, 2));
+        dxdt[8] = beta_yt() / (mu * 16.0 * pow(M_PI, 2));
+        dxdt[9] = beta_gp() / (mu * 16.0 * pow(M_PI, 2));
+        dxdt[10] = beta_g() / (mu * 16.0 * pow(M_PI, 2));
     }
 };
 

@@ -14,150 +14,194 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <tuple>
 
 using namespace thdm;
 
-int main() {
+std::string project_path = "/Users/loganmorrison/CLionProjects/thdm_one_loop_extrema";
 
-    int num_mus = 1000;
+struct Point {
+    Parameters<double> params;
+    Vacuum<double> nvac;
+    Vacuum<double> cbvac;
+};
+
+struct RGEData {
+    std::vector<double> mus;
+    std::vector<Parameters<double>> params_vec;
+    std::vector<double> potential_eff_normal;
+    std::vector<double> potential_eff_cb;
+};
+
+/**
+ * Read in all parameters, normal vacuua and CB vacuua for the type A1 data.
+ * @return vector of the parameters.
+ */
+std::vector<Point> read_data_from_file() {
+    std::string type_a1_path = project_path + "/run_data/type_a1.csv";
+
+    std::ifstream infile(type_a1_path);
+    std::vector<Point> data;
+
+    std::string value;
+    // First line will be a header. This is a flag to tell if we are on first line.
+    bool in_header_line = true;
+    while (infile.good()) {
+        if (in_header_line) {
+            getline(infile, value);
+            in_header_line = false;
+            continue;
+        }
+        Parameters<double> params{};
+        // Read in all parameters
+        getline(infile, value, ',');
+        params.m112 = std::stod(value);
+        getline(infile, value, ',');
+        params.m122 = std::stod(value);
+        getline(infile, value, ',');
+        params.m222 = std::stod(value);
+        getline(infile, value, ',');
+        params.lam1 = std::stod(value);
+        getline(infile, value, ',');
+        params.lam2 = std::stod(value);
+        getline(infile, value, ',');
+        params.lam3 = std::stod(value);
+        getline(infile, value, ',');
+        params.lam4 = std::stod(value);
+        getline(infile, value, ',');
+        params.lam5 = std::stod(value);
+        getline(infile, value, ',');
+        params.mu = std::stod(value);
+        // Read in normal vacuum
+        Vacuum<double> nvac{};
+        getline(infile, value, ',');
+        nvac.vevs[0] = std::stod(value);
+        getline(infile, value, ',');
+        nvac.vevs[1] = std::stod(value);
+        getline(infile, value, ',');
+        nvac.vevs[2] = std::stod(value);
+        // Read in charge-breaking vacuum
+        Vacuum<double> cbvac{};
+        getline(infile, value, ',');
+        cbvac.vevs[0] = std::stod(value);
+        getline(infile, value, ',');
+        cbvac.vevs[1] = std::stod(value);
+        getline(infile, value);
+        cbvac.vevs[2] = std::stod(value);
+
+        data.push_back(Point{params, nvac, cbvac});
+    }
+
+    infile.close();
+    return data;
+}
+
+RGEData run_point(const Point &point) {
+    int num_mus = 100;
     double mu1 = 246.0;
-    double mu2 = 50.0;
+    double mu2 = 230.0;
     double mu_step = (mu2 - mu1) / (num_mus - 1);
-    double v = 246.0;
 
-    // Set up the model.
+    auto params = point.params;
+    auto nvac = point.nvac;
+    auto cbvac = point.cbvac;
     Fields<double> fields{};
-    Parameters<double> params{};
-    params.m112 = -24387.2798158948;
-    params.m122 = -306.105737762432;
-    params.m222 = -35015.1441785317;
-    params.lam1 = 0.595501797126108;
-    params.lam2 = 1.18188716752982;
-    params.lam3 = 0.848217876952806;
-    params.lam4 = 0.559145266584235;
-    params.lam5 = -0.511092299548673;
-    params.mu = v;
-    params.g = SU2_COUP;
-    params.gp = U1Y_COUP;
-    Vacuum<double> nvac(
-            std::vector<double>{-54.393055758293, 239.911224175267, 0});
-    Vacuum<double> cbvac(std::vector<double>{-187.586188286565, 72.1879089873015,
-            -206.800486744671});
+
+    params.gp = SU2_COUP;
+    params.g = U1Y_COUP;
     set_top_yukawa(params, nvac);
 
-    /* Do some checks */
-    fields.set_fields(nvac);
-    for (int i = 0; i < 8; i++)
-        std::cout << potential_eff_deriv(fields, params, i + 1) << ", ";
-    std::cout << std::endl;
-
-    auto evals = potential_eff_hessian_evals(fields, params);
-    for (int i = 0; i < 8; i++)
-        std::cout << evals[i] << ", ";
-    std::cout << std::endl;
-
-    fields.set_fields(cbvac);
-    for (int i = 0; i < 8; i++)
-        std::cout << potential_eff_deriv(fields, params, i + 1) << ", ";
-    std::cout << std::endl;
-
-    evals = potential_eff_hessian_evals(fields, params);
-    for (int i = 0; i < 8; i++)
-        std::cout << evals[i] << ", ";
-    std::cout << std::endl;
-    std::cout << std::endl;
-
-    std::vector<double> potential_eff_normal(num_mus);
-    std::vector<double> potential_eff_cb(num_mus);
-    std::vector<double> mus(num_mus);
-    std::vector<Parameters<double>> params_vec(num_mus);
+    RGEData rge_data{std::vector<double>(num_mus), // mus
+            std::vector<Parameters<double>>(num_mus), // parameters
+            std::vector<double>(num_mus), // effective potential eff normal
+            std::vector<double>(num_mus) // effective potential eff cb
+    };
 
     // Fill in the values for mus
     for (int i = 0; i < num_mus; i++) {
-        mus[i] = i * mu_step + mu1;
+        rge_data.mus[i] = i * mu_step + mu1;
     }
 
     // Set initial values
     fields.set_fields(nvac);
-    potential_eff_normal[0] = potential_eff(fields, params);
+    rge_data.potential_eff_normal[0] = potential_eff(fields, params);
     fields.set_fields(cbvac);
-    potential_eff_cb[0] = potential_eff(fields, params);
-    params_vec[0] = params;
+    rge_data.potential_eff_cb[0] = potential_eff(fields, params);
+    rge_data.params_vec[0] = params;
 
+    // run data from old mu to new mu
     for (int i = 1; i < num_mus; i++) {
-        params = run_parameters(params, mus[i - 1], mus[i]);
-        params_vec[i] = params;
+        params = run_parameters(params, rge_data.mus[i - 1], rge_data.mus[i]);
+        rge_data.params_vec[i] = params;
+        // Root solve for the new vacuua starting at the old vacuua.
         refine_root(params, nvac);
         refine_root(params, cbvac);
 
         fields.set_fields(nvac);
-        potential_eff_normal[i] = potential_eff(fields, params);
-        auto treemassesn = scalar_squared_masses(fields, params);
-        auto effmassesn = potential_eff_hessian_evals(fields, params);
+        rge_data.potential_eff_normal[i] = potential_eff(fields, params);
         fields.set_fields(cbvac);
-        auto treemassescb = scalar_squared_masses(fields, params);
-        auto effmassescb = potential_eff_hessian_evals(fields, params);
-        potential_eff_cb[i] = potential_eff(fields, params);
-
-        int counter = 0;
-        std::cout << "Normal" << nvac << std::endl;
-        for (auto m : treemassesn) {
-            if (std::abs(m) < 1e-3) {
-                counter++;
-            }
-        }
-        counter = 0;
-        std::cout << "Number normal tree zero masses =" << counter << std::endl;
-        for (auto m : effmassesn) {
-            if (std::abs(m) < 1e-3) {
-                counter++;
-            }
-        }
-        std::cout << "Number normal eff zero masses =" << counter << std::endl;
-        std::cout << std::endl;
-        std::cout << "CB" << cbvac << std::endl;
-        counter = 0;
-        for (auto m : treemassescb) {
-            if (std::abs(m) < 1e-3) {
-                counter++;
-            }
-        }
-        std::cout << "CB normal tree zero masses =" << counter << std::endl;
-        counter = 0;
-        for (auto m : effmassescb) {
-            if (std::abs(m) < 1e-3) {
-                counter++;
-            }
-        }
-        std::cout << "CB normal eff zero masses =" << counter << std::endl;
-        std::cout << std::endl;
+        rge_data.potential_eff_cb[i] = potential_eff(fields, params);
     }
 
-    /*std::cout << std::setprecision(15) << std::endl;
-    for (int i = 0; i < num_mus; i++) {
-        std::cout << mus[i] << ", " << potential_eff_normal[i] << ","
-                  << potential_eff_cb[i] << std::endl;
+    return rge_data;
+}
+
+void save_rge_data(RGEData data, const std::string &save_file) {
+    std::ofstream out_file;
+    out_file.open(save_file);
+    out_file << std::setprecision(15);
+
+    // Write header
+    out_file << "mu" << "," << "VN" << "," << "VCB" << ","
+             << "m112" << "," << "m122" << "," << "m222" << ","
+             << "lam1" << "," << "lam2" << "," << "lam3" << ","
+             << "lam4" << "," << "lam5" << "," << "yt" << ","
+             << "gp" << "," << "g" << std::endl;
+
+    // Write data
+    for (size_t i = 0; i < data.mus.size(); i++) {
+        out_file << data.mus[i] << ",";
+        out_file << data.potential_eff_normal[i] << ",";
+        out_file << data.potential_eff_cb[i] << ",";
+        out_file << data.params_vec[i].m112 << ",";
+        out_file << data.params_vec[i].m122 << ",";
+        out_file << data.params_vec[i].m222 << ",";
+        out_file << data.params_vec[i].lam1 << ",";
+        out_file << data.params_vec[i].lam2 << ",";
+        out_file << data.params_vec[i].lam3 << ",";
+        out_file << data.params_vec[i].lam4 << ",";
+        out_file << data.params_vec[i].lam5 << ",";
+        out_file << data.params_vec[i].yt << ",";
+        out_file << data.params_vec[i].gp << ",";
+        out_file << data.params_vec[i].g << std::endl;
     }
-    std::cout << std::endl;*/
+
+    out_file.close();
+}
+
+int main() {
 
 
+    // Read in all data
+    auto data = read_data_from_file();
 
-    /*std::cout << std::setprecision(15) << std::endl;
-    for (int i = 0; i < num_mus; i++) {
-        auto _params = params_vec[i];
-        std::cout << _params.mu << ","
-                  << _params.m112 << ", "
-                  << _params.m122 << ","
-                  << _params.m222 << ","
-                  << _params.lam1 << ","
-                  << _params.lam2 << ","
-                  << _params.lam3 << ","
-                  << _params.lam4 << ","
-                  << _params.lam5 << ","
-                  << _params.yt << ","
-                  << _params.gp << ","
-                  << _params.g << std::endl;
-    }*/
+    // For each data point, run and save data to file.
+    int counter = 0; // Counter for naming the files.
+    for (auto point: data) {
+        std::string save_file = (project_path +
+                "/run_data/RGE/rge_" + std::to_string(counter) + ".csv");
+        try {
+            auto rge_data = run_point(point);
+            save_rge_data(rge_data, save_file);
+            counter++;
+        } catch (...) {
+            // Oops! something went wrong..
+        }
+    }
 
     return 0;
 }

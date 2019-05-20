@@ -121,8 +121,6 @@ int root_functions_eff_jacobian(const gsl_vector *x, void *input_params, gsl_mat
         gsl_matrix_set(J, 4, i, potential_eff_deriv_fld_par(
                 rparams->fields, rparams->params, 3, rparams->key[i] + 1));
     }
-
-
     return GSL_SUCCESS;
 }
 
@@ -209,14 +207,12 @@ solve_root_equations_eff(double renorm_scale) {
         } catch (...) {
             status = -1;
         }
-
-        if (!params.is_bounded())
+        if (!params.is_bounded()) {
             status = -1;
-
+        }
         if (status == 0) {
             return std::make_tuple(nvac, cbvac, params);
         }
-
     }
 }
 } // namespace thdm
