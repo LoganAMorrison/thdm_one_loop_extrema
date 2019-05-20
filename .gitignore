@@ -35,5 +35,4 @@
 cmake-build-debug/*
 build/*
 bin/*
-plots/*.py
 
