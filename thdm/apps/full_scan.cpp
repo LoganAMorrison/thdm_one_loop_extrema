@@ -2,29 +2,6 @@
 // Created by Logan Morrison on 2019-05-03.
 //
 
-/*
- * Type A1: Global CB minimum with local normal minimum
- * Type A2: Global normal minimum with local cb minimum
- * Type B: Global CB minimum with normal saddle
- * Type C: Global normal minimum with CB saddle
- */
-
-/*
- * old:
- else if (is_type_b(model, nvac, cbvac)) {
-                save_point(model.params, nvac, cbvac, fname3);
-                COUNTER++;
-                TYPEB_COUNTER++;
-                display_counts();
-            } else if (is_type_c(model, nvac, cbvac)) {
-                save_point(model.params, nvac, cbvac, fname4);
-                COUNTER++;
-                TYPEC_COUNTER++;
-                display_counts();
-            }
-
- */
-
 
 #include "thdm/model.hpp"
 #include "thdm/potentials.hpp"
@@ -48,32 +25,34 @@ size_t COUNTER = 0;
 size_t type_a1_counter = 0;
 size_t type_a2_counter = 0;
 
-std::mutex mtx;
+struct Point {
+    Parameters<double> params;
+    Vacuum<double> nvac;
+    Vacuum<double> cbvac;
+};
 
-void save_point(Parameters<double> &params, Vacuum<double> &nvac,
-                Vacuum<double> &cbvac, const std::string &file_name) {
+void save_point(const Point &point, const std::string &file_name) {
 
     std::ofstream out_file;
     out_file.open(file_name, std::ios_base::app);
     out_file << std::setprecision(15);
 
-    out_file << params.m112 << ",";
-    out_file << params.m122 << ",";
-    out_file << params.m222 << ",";
-    out_file << params.lam1 << ",";
-    out_file << params.lam2 << ",";
-    out_file << params.lam3 << ",";
-    out_file << params.lam4 << ",";
-    out_file << params.lam5 << ",";
-    out_file << params.mu << "\n";
-    out_file << nvac.vevs[0] << ",";
-    out_file << nvac.vevs[1] << ",";
-    out_file << nvac.vevs[2] << ",";
-    out_file << cbvac.vevs[0] << ",";
-    out_file << cbvac.vevs[1] << ",";
-    out_file << cbvac.vevs[2] << "\n";
+    out_file << point.params.m112 << ",";
+    out_file << point.params.m122 << ",";
+    out_file << point.params.m222 << ",";
+    out_file << point.params.lam1 << ",";
+    out_file << point.params.lam2 << ",";
+    out_file << point.params.lam3 << ",";
+    out_file << point.params.lam4 << ",";
+    out_file << point.params.lam5 << ",";
+    out_file << point.params.mu << ",";
+    out_file << point.nvac.vevs[0] << ",";
+    out_file << point.nvac.vevs[1] << ",";
+    out_file << point.nvac.vevs[2] << ",";
+    out_file << point.cbvac.vevs[0] << ",";
+    out_file << point.cbvac.vevs[1] << ",";
+    out_file << point.cbvac.vevs[2] << "\n";
     out_file.close();
-    mtx.unlock();
 }
 
 /**
@@ -91,20 +70,20 @@ bool is_type_a1(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac)
 
     if (model.is_cb_deepest && model.has_cb_min && model.has_normal_min) {
         cbvac = model.one_loop_deepest;
-        // Find normal min
+        // Find the deepest normal min
+        nvac.potential = 0.0;
         for (auto &vac : model.one_loop_vacuua) {
-            if (std::abs(vac.vevs[2]) < 1e-5) {
+            if (std::abs(vac.vevs[2]) < 1e-2) {
                 if (vac.extrema_type == SingleExtremaType::Minimum) {
-                    nvac = vac;
-                    break;
+                    if (vac.potential < nvac.potential) {
+                        nvac = vac;
+                    }
                 }
             }
         }
         return true;
     }
     return false;
-
-
 }
 
 bool is_type_a2(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac) {
@@ -114,12 +93,14 @@ bool is_type_a2(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac)
 
     if (!model.is_cb_deepest && model.has_cb_min && model.has_normal_min) {
         nvac = model.one_loop_deepest;
-        // Find cb min
+        // Find deepest cb min
+        cbvac.potential = 0.0;
         for (auto &vac : model.one_loop_vacuua) {
-            if (std::abs(vac.vevs[2]) > 1e-5) {
+            if (std::abs(vac.vevs[2]) > 1e-2) {
                 if (vac.extrema_type == SingleExtremaType::Minimum) {
-                    cbvac = vac;
-                    break;
+                    if (vac.potential < cbvac.potential) {
+                        cbvac = vac;
+                    }
                 }
             }
         }
@@ -191,12 +172,12 @@ int main() {
             Vacuum<double> nvac{};
             Vacuum<double> cbvac{};
             if (is_type_a1(model, nvac, cbvac)) {
-                save_point(model.params, nvac, cbvac, a1_file_name);
+                save_point(Point{model.params, nvac, cbvac}, a1_file_name);
                 COUNTER++;
                 type_a1_counter++;
                 display_counts();
             } else if (is_type_a2(model, nvac, cbvac)) {
-                save_point(model.params, nvac, cbvac, a2_file_name);
+                save_point(Point{model.params, nvac, cbvac}, a2_file_name);
                 COUNTER++;
                 type_a2_counter++;
                 display_counts();

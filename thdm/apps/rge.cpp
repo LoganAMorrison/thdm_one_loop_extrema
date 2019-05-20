@@ -103,7 +103,7 @@ std::vector<Point> read_data_from_file() {
 RGEData run_point(const Point &point) {
     int num_mus = 100;
     double mu1 = 246.0;
-    double mu2 = 230.0;
+    double mu2 = 200.0;
     double mu_step = (mu2 - mu1) / (num_mus - 1);
 
     auto params = point.params;
@@ -111,8 +111,8 @@ RGEData run_point(const Point &point) {
     auto cbvac = point.cbvac;
     Fields<double> fields{};
 
-    params.gp = SU2_COUP;
-    params.g = U1Y_COUP;
+    params.gp = U1Y_COUP;
+    params.g = SU2_COUP;
     set_top_yukawa(params, nvac);
 
     RGEData rge_data{std::vector<double>(num_mus), // mus

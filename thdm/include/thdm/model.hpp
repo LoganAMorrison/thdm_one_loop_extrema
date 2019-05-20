@@ -256,7 +256,7 @@ private:
      */
     void find_deepest_eff() {
         using std::abs;
-        double TOL = 1e-5;
+        double TOL = 1e-2;
         for (const auto &vac : one_loop_vacuua) {
             if (vac.potential < one_loop_deepest.potential)
                 one_loop_deepest = vac;
@@ -278,7 +278,7 @@ private:
      */
     void determine_if_has_normal_cb_min() {
         using std::abs;
-        double TOL = 1e-5;
+        double TOL = 1e-2;
         for (auto vac : one_loop_vacuua) {
             if (abs(vac.vevs[2]) < TOL) {
                 if (vac.extrema_type == SingleExtremaType::Minimum)

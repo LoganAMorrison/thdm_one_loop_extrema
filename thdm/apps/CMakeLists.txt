@@ -82,3 +82,17 @@ target_link_libraries(${RGE}
 set_target_properties(${RGE} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
         )
+
+set(POTENTIALS potentials)
+add_executable(${POTENTIALS} potentials.cpp)
+target_link_libraries(${POTENTIALS}
+        thdm
+        ${ARMADILLO_LIBRARIES}
+        ${Boost_LIBRARIES}
+        GSL::gsl
+        GSL::gslcblas
+        Eigen3::Eigen)
+
+set_target_properties(${POTENTIALS} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
+        )
