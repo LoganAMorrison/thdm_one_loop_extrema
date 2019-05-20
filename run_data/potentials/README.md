@@ -9,6 +9,6 @@ Let the vacuua be labeled by `phi_n` and `phi_cb` for the normal and
 charge-breaking  VEVs. Both `phi_n` and `phi_cb` are three-vectors. We 
 interpolate between the VEVs using:
 ```$xslt
-phi(t) = phi_n * t + phi_cb * (1-t)
+phi(t) = phi_n * (1-t) + phi_cb * t
 ```
 where 0 <= t <= 1.
