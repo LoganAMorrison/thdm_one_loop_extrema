@@ -188,33 +188,6 @@ int try_solve_root_equations_eff(Vacuum<double> &nvac, Vacuum<double> &cbvac, Pa
     return status;
 }
 
-std::tuple<Vacuum<double>, Vacuum<double>, Parameters<double>>
-
-solve_root_equations_eff(double renorm_scale) {
-
-    while (true) {
-        int status;
-        // Initialize the parameters. Random values will be chosen
-        // such that the potential is bounded from below
-        Parameters<double> params{renorm_scale};
-        // Create random normal and cb vacuua
-        auto nvac = generate_normal_vac(renorm_scale);
-        auto cbvac = generate_cb_vac(renorm_scale);
-        set_top_yukawa(params, nvac);
-
-        try {
-            status = try_solve_root_equations_eff(nvac, cbvac, params);
-        } catch (...) {
-            status = -1;
-        }
-        if (!params.is_bounded()) {
-            status = -1;
-        }
-        if (status == 0) {
-            return std::make_tuple(nvac, cbvac, params);
-        }
-    }
-}
 } // namespace thdm
 
 

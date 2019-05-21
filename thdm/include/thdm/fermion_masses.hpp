@@ -8,12 +8,11 @@
 #include "thdm/fields.hpp"
 #include "thdm/parameters.hpp"
 #include "thdm/vacuua.hpp"
+#include "thdm/constants.hpp"
 #include <vector>
 #include <cmath>
 
 namespace thdm {
-
-#define MTOP 173.0
 
 double top_mass_squared(const Fields<double> &fields, const Parameters<double> &params) {
     double yt = params.yt;
@@ -63,7 +62,7 @@ double top_mass_squared_deriv(const Fields<double> &, const Parameters<double> &
 
 void set_top_yukawa(Parameters<double> &params, const Vacuum<double> &nvac) {
     double r2 = nvac.vevs[1];
-    params.yt = sqrt(2) * MTOP / fabs(r2);
+    params.yt = sqrt(2) * M_TOP / fabs(r2);
 }
 
 }

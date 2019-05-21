@@ -2,28 +2,12 @@
 #define FIELDS_HPP
 
 #include "thdm/vacuua.hpp"
+#include "thdm/errors.hpp"
 #include <vector>
 #include <exception>
 
 namespace thdm {
 
-struct InvalidVectorSizeConstructor : public std::exception {
-    const char *what() const noexcept override {
-        return "Invalid vector size to initialize Fields.";
-    }
-};
-
-struct InvalidVectorSizeSet : public std::exception {
-    const char *what() const noexcept override {
-        return "Invalid vector size to set Fields.";
-    }
-};
-
-struct FieldIndexOutOfRange : public std::exception {
-    const char *what() const noexcept override {
-        return "Invalid index in call Fields[i].";
-    }
-};
 
 /**
  * Fields class for the THDM.
@@ -99,7 +83,8 @@ public:
             i1 = v[6];
             i2 = v[7];
         } else {
-            throw InvalidVectorSizeConstructor();
+            throw THDMException(
+                    THDMExceptionCode::FieldsInvalidVectorSizeConstructor);
         }
     }
 
@@ -139,7 +124,7 @@ public:
         else if (fld == 7)
             return i2;
         else
-            throw FieldIndexOutOfRange();
+            throw THDMException(THDMExceptionCode::FieldsIndexOutOfRange);
     }
 
     /**
@@ -184,7 +169,7 @@ public:
             i1 = v[6];
             i2 = v[7];
         } else {
-            throw InvalidVectorSizeSet();
+            throw THDMException(THDMExceptionCode::FieldsInvalidVectorSizeSet);
         }
     }
 

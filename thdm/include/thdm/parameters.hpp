@@ -1,6 +1,8 @@
 #ifndef PARAMETERS_HPP
 #define PARAMETERS_HPP
 
+#include "thdm/errors.hpp"
+#include "thdm/constants.hpp"
 #include <random>
 #include <cmath>
 #include <exception>
@@ -8,14 +10,6 @@
 
 namespace thdm {
 
-#define U1Y_COUP 0.3497
-#define SU2_COUP 0.652954
-
-struct InvalidParAccessException : public std::exception {
-    const char *what() const noexcept override {
-        return "Invalid index in call Parameters[i].";
-    }
-};
 
 /**
  * Class for the parameters of the THDM scalar potential.
@@ -118,7 +112,7 @@ public:
      *
      * We choose the parameters such that the following bounded-from-below
      * conditions are satisfied: lam1 >= 0, lam2 >= 0, lam3 >= -sqrt(lam1 lam2),
-     * lam3 + lam4 - abs(lam5) >= -sqrt(lam1 lam2). The rannge or the random
+     * lam3 + lam4 - abs(lam5) >= -sqrt(lam1 lam2). The range or the random
      * numbers are:
      * - mass squared parameters: m112, m122, m222: [-mu^2,  mu^2]
      * - lam1 and lam2: [0, 10]
@@ -158,7 +152,7 @@ public:
     }
 
     /**
-     * Defualt destructor for Parameters<T>.
+     * Default destructor for Parameters<T>.
      */
     ~Parameters() = default;
 
@@ -221,7 +215,7 @@ public:
         else if (par == 11)
             return g;
         else
-            throw InvalidParAccessException();
+            throw THDMException(THDMExceptionCode::ParametersIndexOutOfRange);
     }
 };
 

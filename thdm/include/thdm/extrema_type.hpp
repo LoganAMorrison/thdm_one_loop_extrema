@@ -91,7 +91,6 @@ SingleExtremaType determine_single_extrema_type_eff(Parameters<double> &params, 
 DoubleExtremaType determine_extrema_type_eff(Parameters<double> &params,
                                              Vacuum<double> &nvac,
                                              Vacuum<double> &cbvac) {
-    Fields<double> fields{};
 
     SingleExtremaType ntype = determine_single_extrema_type_eff(params, nvac);
     SingleExtremaType cbtype = determine_single_extrema_type_eff(params, cbvac);

@@ -15,8 +15,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <mutex>
 
 namespace thdm {
+
+std::mutex tree_roots_mtx;
 
 typedef std::vector<Vacuum < double>>
 VacVec;
@@ -234,6 +237,8 @@ static VacVec parse_data_file() {
 }
 
 VacVec get_tree_roots(Parameters<double> &params) {
+    // Lock the function. Only one thread can access this at a time.
+    std::lock_guard<std::mutex> lock(tree_roots_mtx);
     // First write the equations to current_tadpoles.in in the HOM4PS2
     // directory
     write_equations(params);

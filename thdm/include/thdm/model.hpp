@@ -15,75 +15,12 @@
 #include "thdm/scalar_masses.hpp"
 #include "thdm/potentials.hpp"
 #include "thdm/extrema_type.hpp"
+#include "thdm/validation.hpp"
 #include <vector>
 #include <tuple>
 #include <iostream>
 
 namespace thdm {
-
-/**
- * Check that all the derivatives at the normal and charge
- * breaking vacuums are zero.
- * @param point Point to check.
- * @return bool
- */
-bool verify_derivatives_zero(Parameters<double> &params, Vacuum<double> &vac) {
-    bool isvalid = true;
-
-    Fields<double> fields{};
-    try {
-        fields.set_fields(vac);
-        double TOL = 1e-8;
-        for (int i = 1; i <= 8; i++) {
-            double derivative = potential_eff_deriv(fields, params, i);
-            isvalid = isvalid && (abs(derivative) < TOL);
-        }
-
-    } catch (...) {
-        isvalid = false;
-    }
-    return isvalid;
-}
-
-/**
- * Check that there are the correct number of goldstone
- * bosons. For normal extrema, there should be three,
- * for CB, there should be four.
- * @param params
- * @param vac
- * @param is_cb
- * @return
- */
-bool verify_goldstones(Parameters<double> &params, Vacuum<double> &vac, bool is_cb = false) {
-    bool has_goldstones = true;
-    double TOL = 1e-7;
-
-    Fields<double> fields{};
-    try {
-        fields.set_fields(vac);
-        auto masses = potential_eff_hessian_evals(fields, params);
-        // Make all masses positive
-        for (double &mass : masses) {
-            mass = abs(mass);
-        }
-        // Sort masses
-        std::sort(masses.begin(), masses.end(), std::less<double>());
-        // first three should have masses that are less
-        // near zero.
-        has_goldstones = has_goldstones && (masses[0] < TOL);
-        has_goldstones = has_goldstones && (masses[1] < TOL);
-        has_goldstones = has_goldstones && (masses[2] < TOL);
-
-        if (is_cb) {
-            has_goldstones = has_goldstones && (masses[3] < TOL);
-        }
-    } catch (...) {
-        has_goldstones = false;
-    }
-
-    return has_goldstones;
-}
-
 
 class Model {
 
@@ -188,18 +125,23 @@ private:
         Vacuum<double> nvac{};
         Vacuum<double> cbvac{};
         while (!done) {
+            int status;
+            // Initialize the parameters. Random values will be chosen
+            // such that the potential is bounded from below
+            params = Parameters<double>{renorm_scale};
+            // Create random normal and cb vacuua
+            nvac = generate_normal_vac(renorm_scale);
+            cbvac = generate_cb_vac(renorm_scale);
+            set_top_yukawa(params, nvac);
             try {
-                auto sol = solve_root_equations_eff(renorm_scale);
-                nvac = std::get<0>(sol);
-                cbvac = std::get<1>(sol);
-                params = std::get<2>(sol);
-
-                done = true;
-                done = (done && verify_derivatives_zero(params, nvac));
-                done = (done && verify_derivatives_zero(params, cbvac));
-                done = (done && verify_goldstones(params, nvac));
-                done = (done && verify_goldstones(params, cbvac, true));
-            } catch (...) {
+                status = try_solve_root_equations_eff(nvac, cbvac, params);
+                // Check that nvac is valid
+                done = is_vacuum_valid(params, nvac);
+                // Check that cbvac is valid
+                done = done && is_vacuum_valid(params, nvac);
+                // Check that root-finder succeeded.
+                done = done && (status == 0);
+            } catch (THDMException &e) {
                 done = false;
             }
         }
@@ -224,17 +166,11 @@ private:
                 minimize_potential_eff(params, new_vac);
                 refine_root(params, new_vac);
                 // Make sure this new vacuum is really a root.
-                bool derivs_zero = verify_derivatives_zero(params, new_vac);
-                // Make sure there are goldstones.
-                bool is_cb = (abs(new_vac.vevs[2]) > 1e-5);
-                bool has_goldstones = verify_goldstones(params, new_vac, is_cb);
-                if (derivs_zero && has_goldstones) {
+                if (is_vacuum_valid(params, new_vac)) {
                     // Make sure root isn't duplicate
                     bool should_add = true;
                     for (const auto &one_loop_vac : one_loop_vacuua) {
-                        if ((std::abs(new_vac.vevs[0] - one_loop_vac.vevs[0]) < 1e-5) &&
-                                (std::abs(new_vac.vevs[1] - one_loop_vac.vevs[1]) < 1e-5) &&
-                                (std::abs(new_vac.vevs[2] - one_loop_vac.vevs[2]) < 1e-5)) {
+                        if (are_vacuua_approx_equal(new_vac, one_loop_vac)) {
                             should_add = false;
                             break;
                         }
@@ -255,17 +191,15 @@ private:
      * normal and charge-breaking minima.
      */
     void find_deepest_eff() {
-        using std::abs;
-        double TOL = 1e-2;
         for (const auto &vac : one_loop_vacuua) {
             if (vac.potential < one_loop_deepest.potential)
                 one_loop_deepest = vac;
-            if (abs(vac.vevs[2]) < TOL) {
+            if (is_vacuum_normal(vac)) {
                 if (vac.potential < one_loop_deepest_normal.potential) {
                     one_loop_deepest_normal = vac;
                 }
             }
-            if (abs(vac.vevs[2]) > TOL) {
+            if (!is_vacuum_normal(vac)) {
                 if (vac.potential < one_loop_deepest_cb.potential) {
                     one_loop_deepest_cb = vac;
                 }
@@ -277,16 +211,16 @@ private:
      * Determine if we have both charge-breaking and normal minima.
      */
     void determine_if_has_normal_cb_min() {
-        using std::abs;
-        double TOL = 1e-2;
-        for (auto vac : one_loop_vacuua) {
-            if (abs(vac.vevs[2]) < TOL) {
-                if (vac.extrema_type == SingleExtremaType::Minimum)
-                    has_normal_min = true;
+        has_normal_min = false;
+        has_cb_min = false;
+        for (auto &vac : one_loop_vacuua) {
+            if (is_vacuum_normal(vac) &&
+                    vac.extrema_type == SingleExtremaType::Minimum) {
+                has_normal_min = true;
             }
-            if (abs(vac.vevs[2]) > TOL) {
-                if (vac.extrema_type == SingleExtremaType::Minimum)
-                    has_cb_min = true;
+            if (!is_vacuum_normal(vac) &&
+                    vac.extrema_type == SingleExtremaType::Minimum) {
+                has_cb_min = true;
             }
         }
     }

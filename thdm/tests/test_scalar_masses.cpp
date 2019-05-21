@@ -4,7 +4,9 @@
 #include "thdm/fields.hpp"
 #include "thdm/parameters.hpp"
 #include "thdm/root_finding_eff.hpp"
-#include "thdm/eigenvalue_derivatives.hpp"
+#include "thdm/vacuua.hpp"
+#include "thdm/errors.hpp"
+#include "thdm/validation.hpp"
 #include <cmath>
 #include <iostream>
 #include <gtest/gtest.h>
@@ -56,13 +58,32 @@ TEST(ScalarMassesTest, EigenvalueDerivatives) {
     std::cout << std::setprecision(15) << std::endl;
 
     Fields<double> fields{};
-    //Parameters<double> params{mu};
-    //auto vac = generate_cb_vac(mu);
-    //fields.set_fields(vac);
-    auto res = solve_root_equations_eff(mu);
-    auto nvac = std::get<0>(res);
-    auto cbvac = std::get<1>(res);
-    auto params = std::get<2>(res);
+    Vacuum<double> nvac{};
+    Vacuum<double> cbvac{};
+    Parameters<double> params{mu};
+    bool done = false;
+    while (!done) {
+        int status;
+        // Initialize the parameters. Random values will be chosen
+        // such that the potential is bounded from below
+        params = Parameters<double>{mu};
+        // Create random normal and cb vacuua
+        nvac = generate_normal_vac(mu);
+        cbvac = generate_cb_vac(mu);
+        set_top_yukawa(params, nvac);
+        try {
+            status = try_solve_root_equations_eff(nvac, cbvac, params);
+            // Check that nvac is valid
+            done = is_vacuum_valid(params, nvac);
+            // Check that cbvac is valid
+            done = done && is_vacuum_valid(params, nvac);
+            // Check that root-finder succeeded.
+            done = done && (status == 0);
+        } catch (THDMException &e) {
+            std::cout << e.what() << std::endl;
+            done = false;
+        }
+    }
 
     fields.set_fields(cbvac);
     std::cout << "Fields:" << std::endl;
@@ -147,41 +168,6 @@ TEST(ScalarMassesTest, DerivativesMassMatrix) {
             }
         }
     }
-}
-
-TEST(ScalarMassesTest, DerivativeMassMatrix1) {
-    double mu = 246.0;
-    Fields<double> fields{};
-    Parameters<double> params{246.0};
-
-    std::random_device rd{};
-    std::mt19937 engine{rd()};
-    std::uniform_real_distribution<double> dist{-mu, mu};
-
-    for (int i = 0; i < 8; i++) {
-        fields[i] = dist(engine);
-    }
-
-    std::cout << "Creating mass matrix" << std::endl;
-    MatrixXd M = scalar_squared_mass_matrix_eigen(fields, params);
-    std::cout << "Creating first derivative mass matrix" << std::endl;
-    MatrixXd dM1 = scalar_squared_mass_matrix_deriv(fields, params, 1);
-    std::cout << "Creating first derivative mass matrix" << std::endl;
-    MatrixXd dM2 = scalar_squared_mass_matrix_deriv(fields, params, 2);
-    std::cout << "Creating second derivative mass matrix" << std::endl;
-    MatrixXd d2M = scalar_squared_mass_matrix_deriv(fields, params, 1, 2);
-
-    std::cout << M << std::endl;
-    std::cout << std::endl;
-    std::cout << dM1 << std::endl;
-    std::cout << std::endl;
-    std::cout << dM2 << std::endl;
-    std::cout << std::endl;
-    std::cout << d2M << std::endl;
-
-    auto blah = eigenvalue_first_derivative(M, dM1);
-    //std::tuple<VectorXd, VectorXd, VectorXd, VectorXd> blah = eigenvalue_first_second_derivative(M, dM1, dM2, d2M);
-
 }
 
 

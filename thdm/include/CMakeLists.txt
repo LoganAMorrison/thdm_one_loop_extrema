@@ -4,6 +4,8 @@ add_subdirectory(thdm)
 set(THDM_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/thdm/include/thdm)
 
 set(LIB_HEADERS
+        ${THDM_INCLUDE_DIR}/constants.hpp
+        ${THDM_INCLUDE_DIR}/errors.hpp
         ${THDM_INCLUDE_DIR}/dual.hpp
         ${THDM_INCLUDE_DIR}/fields.hpp
         ${THDM_INCLUDE_DIR}/parameters.hpp
@@ -13,13 +15,12 @@ set(LIB_HEADERS
         ${THDM_INCLUDE_DIR}/root_finding_eff.hpp
         ${THDM_INCLUDE_DIR}/tree_roots.hpp
         ${THDM_INCLUDE_DIR}/minimize.hpp
-        ${THDM_INCLUDE_DIR}/eigenvalue_derivatives.hpp
         ${THDM_INCLUDE_DIR}/extrema_type.hpp
         ${THDM_INCLUDE_DIR}/root_refine.hpp
-        ${THDM_INCLUDE_DIR}/tree_roots_explict.hpp
         ${THDM_INCLUDE_DIR}/gauge_masses.hpp
         ${THDM_INCLUDE_DIR}/fermion_masses.hpp
         ${THDM_INCLUDE_DIR}/beta_functions.hpp
+        ${THDM_INCLUDE_DIR}/validation.hpp
         )
 
 # Define two variables in order not to repeat ourselves.

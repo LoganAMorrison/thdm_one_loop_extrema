@@ -1,17 +1,15 @@
 #ifndef JACOBI_HPP
 #define JACOBI_HPP
 
+#include "thdm/errors.hpp"
 #include <numeric>
 #include <cmath>
 #include <vector>
 
 namespace thdm {
+/* Maximum iterations for Jacobi algorithm */
+static constexpr int const JACOBI_MAX_ITER = 100;
 
-struct JacobiTooManyIterationsException : public std::exception {
-    const char *what() const noexcept override {
-        return "Too many iterations in jacobi.";
-    }
-};
 
 /**
  * Rotate two of the components of a matrix.
@@ -25,8 +23,8 @@ struct JacobiTooManyIterationsException : public std::exception {
  * @param l
  */
 template<class T>
-inline void rot(std::vector<std::vector<T>> &mat, const T s, const T tau, const int i,
-                const int j, const int k, const int l) {
+inline void rot(std::vector<std::vector<T>> &mat, const T s, const T tau,
+                const int i, const int j, const int k, const int l) {
     T g = mat[i][j];
     T h = mat[k][l];
     mat[i][j] = g - s * (h + g * tau);
@@ -42,7 +40,8 @@ inline void rot(std::vector<std::vector<T>> &mat, const T s, const T tau, const 
  */
 template<class T>
 std::vector<T> jacobi(const std::vector<std::vector<T>> &mmat) {
-    std::vector<std::vector<T>> mat(mmat); // Copy the matrix so we don't destroy original
+    // Copy the matrix so we don't destroy original
+    std::vector<std::vector<T>> mat(mmat);
     int n = mat.size();
 
     std::vector<std::vector<T>> v(n, std::vector<T>(n, static_cast<T>(0)));
@@ -65,7 +64,7 @@ std::vector<T> jacobi(const std::vector<std::vector<T>> &mmat) {
         b[ip] = d[ip] = mat[ip][ip];
         z[ip] = static_cast<T>(0);
     }
-    for (i = 1; i <= 50; i++) {
+    for (i = 1; i <= JACOBI_MAX_ITER; i++) {
         sm = static_cast<T>(0);
         for (ip = 0; ip < n - 1; ip++) {
             for (iq = ip + 1; iq < n; iq++)
@@ -120,7 +119,7 @@ std::vector<T> jacobi(const std::vector<std::vector<T>> &mmat) {
             z[ip] = static_cast<T>(0);
         }
     }
-    throw JacobiTooManyIterationsException();
+    throw THDMException(THDMExceptionCode::JacobiTooManyIterations);
 }
 
 } // namespace thdm

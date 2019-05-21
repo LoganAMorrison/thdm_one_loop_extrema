@@ -6,6 +6,13 @@
 
 namespace thdm {
 
+/* A vacuum is considered normal c1 is greater than this tolerance. */
+const double ZERO_CB_VEV_TOL = 1e-2;
+/* Two vacuua are considered the same if sqrt of sum of
+ * squares of components are less than this tolerance
+ */
+const double CLOSE_VEVS_TOL = 1e-5;
+
 enum SingleExtremaType {
     Minimum,
     Maximum,
@@ -45,43 +52,6 @@ std::string single_extrema_type_to_string(SingleExtremaType type) {
 }
 
 
-std::string double_extema_type_to_string(DoubleExtremaType type) {
-    if (type == DoubleExtremaType::MinMin) {
-        return "MinMin";
-    } else if (type == DoubleExtremaType::MinMax) {
-        return "MinMax";
-    } else if (type == DoubleExtremaType::MinSad) {
-        return "MinSad";
-    } else if (type == DoubleExtremaType::MinUnd) {
-        return "MinUnd";
-    } else if (type == DoubleExtremaType::MaxMin) {
-        return "MaxMin";
-    } else if (type == DoubleExtremaType::MaxMax) {
-        return "MaxMax";
-    } else if (type == DoubleExtremaType::MaxSad) {
-        return "MaxSad";
-    } else if (type == DoubleExtremaType::MaxUnd) {
-        return "MaxUnd";
-    } else if (type == DoubleExtremaType::SadMin) {
-        return "SadMin";
-    } else if (type == DoubleExtremaType::SadMax) {
-        return "SadMax";
-    } else if (type == DoubleExtremaType::SadSad) {
-        return "SadSad";
-    } else if (type == DoubleExtremaType::SadUnd) {
-        return "SadUnd";
-    } else if (type == DoubleExtremaType::UndMin) {
-        return "UndMin";
-    } else if (type == DoubleExtremaType::UndMax) {
-        return "UndMax";
-    } else if (type == DoubleExtremaType::UndSad) {
-        return "UndSad";
-    } else {
-        return "UndUnd";
-    }
-}
-
-
 template<class T>
 class Vacuum {
 private:
@@ -112,6 +82,23 @@ public:
         extrema_type = vac.extrema_type;
         return *this;
     }
+
+    friend bool operator<=(const Vacuum<T> &vac1, const Vacuum<T> &vac2) {
+        return vac1.potential <= vac2.potential;
+    }
+
+    friend bool operator<(const Vacuum<T> &vac1, const Vacuum<T> &vac2) {
+        return vac1.potential < vac2.potential;
+    }
+
+    friend bool operator>=(const Vacuum<T> &vac1, const Vacuum<T> &vac2) {
+        return vac1.potential >= vac2.potential;
+    }
+
+    friend bool operator>(const Vacuum<T> &vac1, const Vacuum<T> &vac2) {
+        return vac1.potential > vac2.potential;
+    }
+
 
     /**
      * Output stream for vacuua.
@@ -161,6 +148,32 @@ Vacuum<double> generate_cb_vac(double mu) {
     _vevs[1] = (2.0 * mu * dist(engine) - mu);
     _vevs[2] = (2.0 * mu * dist(engine) - mu);
     return Vacuum<double>(_vevs);
+}
+
+/**
+ * Determine if vacuum is normal.
+ * @param vac THDM vacuum.
+ * @return bool True is vacuum is normal.
+ */
+bool is_vacuum_normal(const Vacuum<double> &vac) {
+    using std::abs;
+    return (abs(vac.vevs[2]) < ZERO_CB_VEV_TOL);
+}
+
+/**
+ * Determine if the vacuua are approximately the same.
+ * @param vac1 THDM vacuum.
+ * @param vac2 THDM vacuum.
+ * @return True if vacuua are approximately equal.
+ */
+bool are_vacuua_approx_equal(const Vacuum<double> &vac1,
+                             const Vacuum<double> &vac2) {
+    using std::abs;
+    double quad = 0.0;
+    quad += pow(vac1.vevs[0] - vac2.vevs[0], 2);
+    quad += pow(vac1.vevs[1] - vac2.vevs[1], 2);
+    quad += pow(vac1.vevs[2] - vac2.vevs[2], 2);
+    return sqrt(quad) < CLOSE_VEVS_TOL;
 }
 
 

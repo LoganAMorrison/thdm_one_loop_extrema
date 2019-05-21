@@ -1,30 +1,13 @@
 #ifndef Dual_HPP
 #define Dual_HPP
 
+#include "thdm/errors.hpp"
 #include <iostream>
 #include <cmath>
 #include <string>
 #include <Eigen/Core>
 
 namespace thdm {
-
-struct DualDivisionByZeroError : public std::exception {
-    const char *what() const noexcept override {
-        return "Divided by zero in function: ";
-    }
-};
-
-struct DualInvalidLogArgument : public std::exception {
-    const char *what() const noexcept override {
-        return "Invalid argument passed to log.";
-    }
-};
-
-struct DualInvalidSqrtArgument : public std::exception {
-    const char *what() const noexcept override {
-        return "Invalid argument passed to sqrt.";
-    }
-};
 
 
 /**
@@ -436,7 +419,7 @@ public:
      * Adds component-wise
      *
      * @param z first dual
-     * @param w secomd dual.
+     * @param w second dual.
      */
     friend Dual<T> operator+(const Dual<T> &z, const Dual<T> &w) {
         return Dual<T>(w.val + z.val, w.eps + z.eps);
@@ -448,7 +431,7 @@ public:
      * Adds real components
      *
      * @param z first dual
-     * @param w secomd dual.
+     * @param w second dual.
      */
     template<class U>
     friend Dual<T> operator+(const Dual<T> &z, const U &x) {
@@ -460,7 +443,7 @@ public:
      *
      * Adds real components
      *
-     * @param w secomd dual.
+     * @param w second dual.
      * @param z first dual
      */
     template<class U>
@@ -474,7 +457,7 @@ public:
      * Subtracts component-wise
      *
      * @param z first dual
-     * @param w secomd dual.
+     * @param w second dual.
      */
     friend Dual<T> operator-(const Dual<T> &z, const Dual<T> &w) {
         return Dual<T>(-w.val + z.val, -w.eps + z.eps);
@@ -485,7 +468,7 @@ public:
      *
      * Subtracts real components
      *
-     * @param w secomd dual.
+     * @param w second dual.
      * @param x real
      */
     template<class U>
@@ -499,7 +482,7 @@ public:
      * Subtracts real components
      *
      * @param x real
-     * @param w secomd dual.
+     * @param w second dual.
      */
     template<class U>
     friend Dual<T> operator-(const U &x, const Dual<T> &z) {
@@ -509,7 +492,7 @@ public:
     /**
      * Negation operator for duals.
      *
-     * Change signs of both compontents of dual.
+     * Change signs of both components of dual.
      *
      * @param z dual number
      * @return negated dual.
@@ -596,7 +579,7 @@ public:
             std::cout << "division by zero with two duals: " << std::endl;
             std::cout << z << std::endl;
             std::cout << w << std::endl;
-            throw DualDivisionByZeroError();
+            throw THDMException(THDMExceptionCode::DualDivisionByZero);
         }
         return Dual<T>(z.val / w.val, -w.eps * z.val / pow(w.val, 2) + z.eps / w.val);
     }
@@ -612,7 +595,7 @@ public:
             std::cout << "division by zero with dual and dual: " << std::endl;
             std::cout << z << std::endl;
             std::cout << w << std::endl;
-            throw DualDivisionByZeroError();
+            throw THDMException(THDMExceptionCode::DualDivisionByZero);
         }
         z = z / w;
     }
@@ -632,7 +615,7 @@ public:
             std::cout << "division by zero with dual and other: " << std::endl;
             std::cout << z << std::endl;
             std::cout << x << std::endl;
-            throw DualDivisionByZeroError();
+            throw THDMException(THDMExceptionCode::DualDivisionByZero);
         }
         return z / static_cast<Dual<T>>(x);
     }
@@ -643,7 +626,7 @@ public:
             std::cout << "division by zero with dual and other: " << std::endl;
             std::cout << z << std::endl;
             std::cout << x << std::endl;
-            throw DualDivisionByZeroError();
+            throw THDMException(THDMExceptionCode::DualDivisionByZero);
         }
         z = z / static_cast<Dual<T>>(x);
     }
@@ -663,7 +646,7 @@ public:
             std::cout << "division by zero with other and dual: " << std::endl;
             std::cout << z << std::endl;
             std::cout << x << std::endl;
-            throw DualDivisionByZeroError();
+            throw THDMException(THDMExceptionCode::DualDivisionByZero);
         }
         return static_cast<Dual<T>>(x) / z;
     }
@@ -680,7 +663,7 @@ public:
             return Dual<T>{0};
         if (z.val < 0) {
             std::cout << "error in pow(const Dual<T> &z, const Dual<T> &w)" << std::endl;
-            throw DualInvalidLogArgument();
+            throw THDMException(THDMExceptionCode::DualInvalidLogArgument);
         }
         return Dual<T>(pow(z.val, w.val),
                        w.val * pow(z.val, w.val - 1) * z.eps +
@@ -760,7 +743,7 @@ public:
      */
     friend Dual<T> sqrt(const Dual<T> &z) {
         if (z.val <= static_cast<T>(0))
-            throw DualInvalidSqrtArgument();
+            throw THDMException(THDMExceptionCode::DualInvalidSqrtArgument);
         return Dual<T>(sqrt(z.val), z.eps / (2 * sqrt(z.val)));
     }
 
@@ -849,7 +832,7 @@ public:
      */
     friend Dual<T> log(const Dual<T> &z) {
         if (z.val <= 0)
-            throw DualInvalidLogArgument();
+            throw THDMException(THDMExceptionCode::DualInvalidLogArgument);
         return Dual<T>(log(z.val), z.eps / z.val);
     }
 };

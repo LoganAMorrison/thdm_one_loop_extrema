@@ -6,6 +6,9 @@
 #include "thdm/parameters.hpp"
 #include "thdm/fields.hpp"
 #include "thdm/root_finding_eff.hpp"
+#include "thdm/vacuua.hpp"
+#include "thdm/validation.hpp"
+#include "thdm/errors.hpp"
 #include <cmath>
 #include <iostream>
 #include <gtest/gtest.h>
@@ -20,10 +23,31 @@ TEST(RootFindingTest, Effective) {
     double mu = 246.0;
     std::cout << std::setprecision(15) << std::endl;
     Fields<double> fields{};
-    auto res = solve_root_equations_eff(mu);
-    auto nvac = std::get<0>(res);
-    auto cbvac = std::get<1>(res);
-    auto params = std::get<2>(res);
+    Vacuum<double> nvac{};
+    Vacuum<double> cbvac{};
+    Parameters<double> params{mu};
+    bool done = false;
+    while (!done) {
+        int status;
+        // Initialize the parameters. Random values will be chosen
+        // such that the potential is bounded from below
+        params = Parameters<double>{mu};
+        // Create random normal and cb vacuua
+        nvac = generate_normal_vac(mu);
+        cbvac = generate_cb_vac(mu);
+        set_top_yukawa(params, nvac);
+        try {
+            status = try_solve_root_equations_eff(nvac, cbvac, params);
+            // Check that nvac is valid
+            done = is_vacuum_valid(params, nvac);
+            // Check that cbvac is valid
+            done = done && is_vacuum_valid(params, nvac);
+            // Check that root-finder succeeded.
+            done = done && (status == 0);
+        } catch (THDMException &e) {
+            done = false;
+        }
+    }
 
     std::cout << "nvac:" << std::endl;
     std::cout << nvac << std::endl;

@@ -8,6 +8,7 @@
 #include "thdm/vacuua.hpp"
 #include "thdm/fermion_masses.hpp"
 #include "thdm/gauge_masses.hpp"
+#include "thdm/validation.hpp"
 #include <vector>
 #include <iostream>
 #include <fstream>

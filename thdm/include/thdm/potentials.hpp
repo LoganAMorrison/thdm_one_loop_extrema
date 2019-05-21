@@ -6,7 +6,6 @@
 #include "thdm/scalar_masses.hpp"
 #include "thdm/gauge_masses.hpp"
 #include "thdm/fermion_masses.hpp"
-#include "thdm/eigenvalue_derivatives.hpp"
 #include <cmath>
 #include <tuple>
 #include <iostream>
@@ -16,7 +15,8 @@
 namespace thdm {
 
 /**
- * Compute the tree-level scalar potential for a given set of fields and parameters.
+ * Compute the tree-level scalar potential for a given set of fields and
+ * parameters.
  * @tparam T a double, Dual<double> or Dual<Dual<double>>
  * @param fields 2hdm fields
  * @param params 2hdm parameter
@@ -42,12 +42,18 @@ T potential_tree(const Fields<T> &fields, const Parameters<T> &params) {
     T lam4 = params.lam4;
     T lam5 = params.lam5;
 
-    return (pow(c1, 4) * lam1) / 8.0 + (pow(c1, 2) * pow(c2, 2) * lam1) / 4.0 +
-            (pow(c2, 4) * lam1) / 8.0 + (pow(c1, 2) * pow(i1, 2) * lam1) / 4.0 +
-            (pow(c2, 2) * pow(i1, 2) * lam1) / 4.0 + (pow(i1, 4) * lam1) / 8.0 +
-            (pow(c3, 4) * lam2) / 8.0 + (pow(c3, 2) * pow(c4, 2) * lam2) / 4.0 +
-            (pow(c4, 4) * lam2) / 8.0 + (pow(c3, 2) * pow(i2, 2) * lam2) / 4.0 +
-            (pow(c4, 2) * pow(i2, 2) * lam2) / 4.0 + (pow(i2, 4) * lam2) / 8.0 +
+    return (pow(c1, 4) * lam1) / 8.0 + (pow(c1, 2) *
+            pow(c2, 2) * lam1) / 4.0 +
+            (pow(c2, 4) * lam1) / 8.0 + (pow(c1, 2) *
+            pow(i1, 2) * lam1) / 4.0 +
+            (pow(c2, 2) * pow(i1, 2) * lam1) / 4.0 +
+            (pow(i1, 4) * lam1) / 8.0 +
+            (pow(c3, 4) * lam2) / 8.0 + (pow(c3, 2) *
+            pow(c4, 2) * lam2) / 4.0 +
+            (pow(c4, 4) * lam2) / 8.0 + (pow(c3, 2) *
+            pow(i2, 2) * lam2) / 4.0 +
+            (pow(c4, 2) * pow(i2, 2) * lam2) / 4.0 +
+            (pow(i2, 4) * lam2) / 8.0 +
             (pow(c1, 2) * pow(c3, 2) * lam3) / 4.0 +
             (pow(c2, 2) * pow(c3, 2) * lam3) / 4.0 +
             (pow(c1, 2) * pow(c4, 2) * lam3) / 4.0 +
@@ -78,7 +84,8 @@ T potential_tree(const Fields<T> &fields, const Parameters<T> &params) {
             (pow(c3, 2) * m222) / 2.0 +
             (pow(c4, 2) * m222) / 2.0 + (pow(i2, 2) * m222) / 2.0 -
             (c2 * c3 * i2 * lam4 * r1) / 2.0 +
-            (c1 * c4 * i2 * lam4 * r1) / 2.0 + (c2 * c3 * i2 * lam5 * r1) / 2.0 -
+            (c1 * c4 * i2 * lam4 * r1) / 2.0 +
+            (c2 * c3 * i2 * lam5 * r1) / 2.0 -
             (c1 * c4 * i2 * lam5 * r1) / 2.0 +
             (pow(c1, 2) * lam1 * pow(r1, 2)) / 4.0 +
             (pow(c2, 2) * lam1 * pow(r1, 2)) / 4.0 +
@@ -90,9 +97,11 @@ T potential_tree(const Fields<T> &fields, const Parameters<T> &params) {
             (pow(i2, 2) * lam5 * pow(r1, 2)) / 4.0 +
             (m112 * pow(r1, 2)) / 2.0 + (lam1 * pow(r1, 4)) / 8.0 +
             (c2 * c3 * i1 * lam4 * r2) / 2.0 -
-            (c1 * c4 * i1 * lam4 * r2) / 2.0 - (c2 * c3 * i1 * lam5 * r2) / 2.0 +
+            (c1 * c4 * i1 * lam4 * r2) / 2.0 -
+            (c2 * c3 * i1 * lam5 * r2) / 2.0 +
             (c1 * c4 * i1 * lam5 * r2) / 2.0 +
-            (c1 * c3 * lam4 * r1 * r2) / 2.0 + (c2 * c4 * lam4 * r1 * r2) / 2.0 +
+            (c1 * c3 * lam4 * r1 * r2) / 2.0 +
+            (c2 * c4 * lam4 * r1 * r2) / 2.0 +
             (c1 * c3 * lam5 * r1 * r2) / 2.0 +
             (c2 * c4 * lam5 * r1 * r2) / 2.0 +
             i1 * i2 * lam5 * r1 * r2 - m122 * r1 * r2 +
@@ -116,12 +125,14 @@ T potential_tree(const Fields<T> &fields, const Parameters<T> &params) {
  * @tparam T a double, Dual<double> or Dual<Dual<double>>
  * @param fields 2HDM fields
  * @param params 2HDM parameters
- * @param i index of field to take derivative of
+ * @param fld index of field to take derivative of
  * @return derivative of the tree-level scalar potential
  */
 template<class T>
-T potential_tree_deriv(const Fields<T> &fields, const Parameters<T> &params, int i) {
-    assert(1 <= i && i <= 8);
+T potential_tree_deriv(
+        const Fields<T> &fields, const Parameters<T> &params, int fld) {
+    if (fld < 1 || 8 < fld)
+        throw THDMException(THDMExceptionCode::ScalarMassesInvalidFldIndex);
 
     T r1 = fields.r1;
     T r2 = fields.r2;
@@ -142,100 +153,148 @@ T potential_tree_deriv(const Fields<T> &fields, const Parameters<T> &params, int
     T lam5 = params.lam5;
 
 
-    if (i == 1) {
-        return -(c2 * c3 * i2 * lam4) / 2. + (c1 * c4 * i2 * lam4) / 2. + (c2 * c3 * i2 * lam5) / 2. -
+    if (fld == 1) {
+        return -(c2 * c3 * i2 * lam4) / 2. + (c1 * c4 * i2 * lam4) / 2. +
+                (c2 * c3 * i2 * lam5) / 2. -
                 (c1 * c4 * i2 * lam5) / 2. + (pow(c1, 2) * lam1 * r1) / 2. +
-                (pow(c2, 2) * lam1 * r1) / 2. + (pow(i1, 2) * lam1 * r1) / 2. + (pow(c3, 2) * lam3 * r1) / 2. +
+                (pow(c2, 2) * lam1 * r1) / 2. + (pow(i1, 2) * lam1 * r1) / 2. +
+                (pow(c3, 2) * lam3 * r1) / 2. +
                 (pow(c4, 2) * lam3 * r1) / 2. +
-                (pow(i2, 2) * lam3 * r1) / 2. + (pow(i2, 2) * lam4 * r1) / 2. - (pow(i2, 2) * lam5 * r1) / 2. +
+                (pow(i2, 2) * lam3 * r1) / 2. + (pow(i2, 2) * lam4 * r1) / 2. -
+                (pow(i2, 2) * lam5 * r1) / 2. +
                 m112 * r1 + (lam1 * pow(r1, 3)) / 2. +
-                (c1 * c3 * lam4 * r2) / 2. + (c2 * c4 * lam4 * r2) / 2. + (c1 * c3 * lam5 * r2) / 2. +
+                (c1 * c3 * lam4 * r2) / 2. + (c2 * c4 * lam4 * r2) / 2. +
+                (c1 * c3 * lam5 * r2) / 2. +
                 (c2 * c4 * lam5 * r2) / 2. + i1 * i2 * lam5 * r2 - m122 * r2 +
-                (lam3 * r1 * pow(r2, 2)) / 2. + (lam4 * r1 * pow(r2, 2)) / 2. + (lam5 * r1 * pow(r2, 2)) / 2.;
-    } else if (i == 2) {
-        return (c2 * c3 * i1 * lam4) / 2. - (c1 * c4 * i1 * lam4) / 2. - (c2 * c3 * i1 * lam5) / 2. +
+                (lam3 * r1 * pow(r2, 2)) / 2. + (lam4 * r1 * pow(r2, 2)) / 2. +
+                (lam5 * r1 * pow(r2, 2)) / 2.;
+    } else if (fld == 2) {
+        return (c2 * c3 * i1 * lam4) / 2. - (c1 * c4 * i1 * lam4) / 2. -
+                (c2 * c3 * i1 * lam5) / 2. +
                 (c1 * c4 * i1 * lam5) / 2. + (c1 * c3 * lam4 * r1) / 2. +
-                (c2 * c4 * lam4 * r1) / 2. + (c1 * c3 * lam5 * r1) / 2. + (c2 * c4 * lam5 * r1) / 2. +
+                (c2 * c4 * lam4 * r1) / 2. + (c1 * c3 * lam5 * r1) / 2. +
+                (c2 * c4 * lam5 * r1) / 2. +
                 i1 * i2 * lam5 * r1 - m122 * r1 + (pow(c3, 2) * lam2 * r2) / 2. +
-                (pow(c4, 2) * lam2 * r2) / 2. + (pow(i2, 2) * lam2 * r2) / 2. + (pow(c1, 2) * lam3 * r2) / 2. +
+                (pow(c4, 2) * lam2 * r2) / 2. + (pow(i2, 2) * lam2 * r2) / 2. +
+                (pow(c1, 2) * lam3 * r2) / 2. +
                 (pow(c2, 2) * lam3 * r2) / 2. +
-                (pow(i1, 2) * lam3 * r2) / 2. + (pow(i1, 2) * lam4 * r2) / 2. - (pow(i1, 2) * lam5 * r2) / 2. +
+                (pow(i1, 2) * lam3 * r2) / 2. + (pow(i1, 2) * lam4 * r2) / 2. -
+                (pow(i1, 2) * lam5 * r2) / 2. +
                 m222 * r2 + (lam3 * pow(r1, 2) * r2) / 2. +
-                (lam4 * pow(r1, 2) * r2) / 2. + (lam5 * pow(r1, 2) * r2) / 2. + (lam2 * pow(r2, 3)) / 2.;
-    } else if (i == 3) {
-        return (pow(c1, 3) * lam1) / 2. + (c1 * pow(c2, 2) * lam1) / 2. + (c1 * pow(i1, 2) * lam1) / 2. +
+                (lam4 * pow(r1, 2) * r2) / 2. + (lam5 * pow(r1, 2) * r2) / 2. +
+                (lam2 * pow(r2, 3)) / 2.;
+    } else if (fld == 3) {
+        return (pow(c1, 3) * lam1) / 2. + (c1 * pow(c2, 2) * lam1) / 2. +
+                (c1 * pow(i1, 2) * lam1) / 2. +
                 (c1 * pow(c3, 2) * lam3) / 2. +
-                (c1 * pow(c4, 2) * lam3) / 2. + (c1 * pow(i2, 2) * lam3) / 2. + (c1 * pow(c3, 2) * lam4) / 2. +
+                (c1 * pow(c4, 2) * lam3) / 2. + (c1 * pow(i2, 2) * lam3) / 2. +
+                (c1 * pow(c3, 2) * lam4) / 2. +
                 (c1 * pow(c4, 2) * lam4) / 2. +
-                (c3 * i1 * i2 * lam4) / 2. + (c1 * pow(c3, 2) * lam5) / 2. + c2 * c3 * c4 * lam5 -
-                (c1 * pow(c4, 2) * lam5) / 2. + (c3 * i1 * i2 * lam5) / 2. + c1 * m112 -
-                c3 * m122 + (c4 * i2 * lam4 * r1) / 2. - (c4 * i2 * lam5 * r1) / 2. + (c1 * lam1 * pow(r1, 2)) / 2. -
+                (c3 * i1 * i2 * lam4) / 2. + (c1 * pow(c3, 2) * lam5) / 2. +
+                c2 * c3 * c4 * lam5 -
+                (c1 * pow(c4, 2) * lam5) / 2. + (c3 * i1 * i2 * lam5) / 2. +
+                c1 * m112 -
+                c3 * m122 + (c4 * i2 * lam4 * r1) / 2. -
+                (c4 * i2 * lam5 * r1) / 2. + (c1 * lam1 * pow(r1, 2)) / 2. -
                 (c4 * i1 * lam4 * r2) / 2. + (c4 * i1 * lam5 * r2) / 2. +
-                (c3 * lam4 * r1 * r2) / 2. + (c3 * lam5 * r1 * r2) / 2. + (c1 * lam3 * pow(r2, 2)) / 2.;
-    } else if (i == 4) {
-        return (pow(c1, 2) * c2 * lam1) / 2. + (pow(c2, 3) * lam1) / 2. + (c2 * pow(i1, 2) * lam1) / 2. +
+                (c3 * lam4 * r1 * r2) / 2. + (c3 * lam5 * r1 * r2) / 2. +
+                (c1 * lam3 * pow(r2, 2)) / 2.;
+    } else if (fld == 4) {
+        return (pow(c1, 2) * c2 * lam1) / 2. + (pow(c2, 3) * lam1) / 2. +
+                (c2 * pow(i1, 2) * lam1) / 2. +
                 (c2 * pow(c3, 2) * lam3) / 2. +
-                (c2 * pow(c4, 2) * lam3) / 2. + (c2 * pow(i2, 2) * lam3) / 2. + (c2 * pow(c3, 2) * lam4) / 2. +
+                (c2 * pow(c4, 2) * lam3) / 2. + (c2 * pow(i2, 2) * lam3) / 2. +
+                (c2 * pow(c3, 2) * lam4) / 2. +
                 (c2 * pow(c4, 2) * lam4) / 2. +
-                (c4 * i1 * i2 * lam4) / 2. - (c2 * pow(c3, 2) * lam5) / 2. + c1 * c3 * c4 * lam5 +
-                (c2 * pow(c4, 2) * lam5) / 2. + (c4 * i1 * i2 * lam5) / 2. + c2 * m112 -
-                c4 * m122 - (c3 * i2 * lam4 * r1) / 2. + (c3 * i2 * lam5 * r1) / 2. + (c2 * lam1 * pow(r1, 2)) / 2. +
+                (c4 * i1 * i2 * lam4) / 2. - (c2 * pow(c3, 2) * lam5) / 2. +
+                c1 * c3 * c4 * lam5 +
+                (c2 * pow(c4, 2) * lam5) / 2. + (c4 * i1 * i2 * lam5) / 2. +
+                c2 * m112 -
+                c4 * m122 - (c3 * i2 * lam4 * r1) / 2. +
+                (c3 * i2 * lam5 * r1) / 2. + (c2 * lam1 * pow(r1, 2)) / 2. +
                 (c3 * i1 * lam4 * r2) / 2. - (c3 * i1 * lam5 * r2) / 2. +
-                (c4 * lam4 * r1 * r2) / 2. + (c4 * lam5 * r1 * r2) / 2. + (c2 * lam3 * pow(r2, 2)) / 2.;
-    } else if (i == 5) {
-        return (pow(c3, 3) * lam2) / 2. + (c3 * pow(c4, 2) * lam2) / 2. + (c3 * pow(i2, 2) * lam2) / 2. +
+                (c4 * lam4 * r1 * r2) / 2. + (c4 * lam5 * r1 * r2) / 2. +
+                (c2 * lam3 * pow(r2, 2)) / 2.;
+    } else if (fld == 5) {
+        return (pow(c3, 3) * lam2) / 2. + (c3 * pow(c4, 2) * lam2) / 2. +
+                (c3 * pow(i2, 2) * lam2) / 2. +
                 (pow(c1, 2) * c3 * lam3) / 2. +
-                (pow(c2, 2) * c3 * lam3) / 2. + (c3 * pow(i1, 2) * lam3) / 2. + (pow(c1, 2) * c3 * lam4) / 2. +
+                (pow(c2, 2) * c3 * lam3) / 2. + (c3 * pow(i1, 2) * lam3) / 2. +
+                (pow(c1, 2) * c3 * lam4) / 2. +
                 (pow(c2, 2) * c3 * lam4) / 2. +
-                (c1 * i1 * i2 * lam4) / 2. + (pow(c1, 2) * c3 * lam5) / 2. - (pow(c2, 2) * c3 * lam5) / 2. +
+                (c1 * i1 * i2 * lam4) / 2. + (pow(c1, 2) * c3 * lam5) / 2. -
+                (pow(c2, 2) * c3 * lam5) / 2. +
                 c1 * c2 * c4 * lam5 + (c1 * i1 * i2 * lam5) / 2. - c1 * m122 +
-                c3 * m222 - (c2 * i2 * lam4 * r1) / 2. + (c2 * i2 * lam5 * r1) / 2. + (c3 * lam3 * pow(r1, 2)) / 2. +
+                c3 * m222 - (c2 * i2 * lam4 * r1) / 2. +
+                (c2 * i2 * lam5 * r1) / 2. + (c3 * lam3 * pow(r1, 2)) / 2. +
                 (c2 * i1 * lam4 * r2) / 2. - (c2 * i1 * lam5 * r2) / 2. +
-                (c1 * lam4 * r1 * r2) / 2. + (c1 * lam5 * r1 * r2) / 2. + (c3 * lam2 * pow(r2, 2)) / 2.;
-    } else if (i == 6) {
-        return (pow(c3, 2) * c4 * lam2) / 2. + (pow(c4, 3) * lam2) / 2. + (c4 * pow(i2, 2) * lam2) / 2. +
+                (c1 * lam4 * r1 * r2) / 2. + (c1 * lam5 * r1 * r2) / 2. +
+                (c3 * lam2 * pow(r2, 2)) / 2.;
+    } else if (fld == 6) {
+        return (pow(c3, 2) * c4 * lam2) / 2. + (pow(c4, 3) * lam2) / 2. +
+                (c4 * pow(i2, 2) * lam2) / 2. +
                 (pow(c1, 2) * c4 * lam3) / 2. +
-                (pow(c2, 2) * c4 * lam3) / 2. + (c4 * pow(i1, 2) * lam3) / 2. + (pow(c1, 2) * c4 * lam4) / 2. +
+                (pow(c2, 2) * c4 * lam3) / 2. + (c4 * pow(i1, 2) * lam3) / 2. +
+                (pow(c1, 2) * c4 * lam4) / 2. +
                 (pow(c2, 2) * c4 * lam4) / 2. +
-                (c2 * i1 * i2 * lam4) / 2. + c1 * c2 * c3 * lam5 - (pow(c1, 2) * c4 * lam5) / 2. +
-                (pow(c2, 2) * c4 * lam5) / 2. + (c2 * i1 * i2 * lam5) / 2. - c2 * m122 +
-                c4 * m222 + (c1 * i2 * lam4 * r1) / 2. - (c1 * i2 * lam5 * r1) / 2. + (c4 * lam3 * pow(r1, 2)) / 2. -
+                (c2 * i1 * i2 * lam4) / 2. + c1 * c2 * c3 * lam5 -
+                (pow(c1, 2) * c4 * lam5) / 2. +
+                (pow(c2, 2) * c4 * lam5) / 2. + (c2 * i1 * i2 * lam5) / 2. -
+                c2 * m122 +
+                c4 * m222 + (c1 * i2 * lam4 * r1) / 2. -
+                (c1 * i2 * lam5 * r1) / 2. + (c4 * lam3 * pow(r1, 2)) / 2. -
                 (c1 * i1 * lam4 * r2) / 2. + (c1 * i1 * lam5 * r2) / 2. +
-                (c2 * lam4 * r1 * r2) / 2. + (c2 * lam5 * r1 * r2) / 2. + (c4 * lam2 * pow(r2, 2)) / 2.;
-    } else if (i == 7) {
-        return (pow(c1, 2) * i1 * lam1) / 2. + (pow(c2, 2) * i1 * lam1) / 2. + (pow(i1, 3) * lam1) / 2. +
+                (c2 * lam4 * r1 * r2) / 2. + (c2 * lam5 * r1 * r2) / 2. +
+                (c4 * lam2 * pow(r2, 2)) / 2.;
+    } else if (fld == 7) {
+        return (pow(c1, 2) * i1 * lam1) / 2. + (pow(c2, 2) * i1 * lam1) / 2. +
+                (pow(i1, 3) * lam1) / 2. +
                 (pow(c3, 2) * i1 * lam3) / 2. +
-                (pow(c4, 2) * i1 * lam3) / 2. + (i1 * pow(i2, 2) * lam3) / 2. + (c1 * c3 * i2 * lam4) / 2. +
+                (pow(c4, 2) * i1 * lam3) / 2. + (i1 * pow(i2, 2) * lam3) / 2. +
+                (c1 * c3 * i2 * lam4) / 2. +
                 (c2 * c4 * i2 * lam4) / 2. +
-                (i1 * pow(i2, 2) * lam4) / 2. + (c1 * c3 * i2 * lam5) / 2. + (c2 * c4 * i2 * lam5) / 2. +
+                (i1 * pow(i2, 2) * lam4) / 2. + (c1 * c3 * i2 * lam5) / 2. +
+                (c2 * c4 * i2 * lam5) / 2. +
                 (i1 * pow(i2, 2) * lam5) / 2. + i1 * m112 - i2 * m122 +
-                (i1 * lam1 * pow(r1, 2)) / 2. + (c2 * c3 * lam4 * r2) / 2. - (c1 * c4 * lam4 * r2) / 2. -
+                (i1 * lam1 * pow(r1, 2)) / 2. + (c2 * c3 * lam4 * r2) / 2. -
+                (c1 * c4 * lam4 * r2) / 2. -
                 (c2 * c3 * lam5 * r2) / 2. + (c1 * c4 * lam5 * r2) / 2. +
-                i2 * lam5 * r1 * r2 + (i1 * lam3 * pow(r2, 2)) / 2. + (i1 * lam4 * pow(r2, 2)) / 2. -
-                (i1 * lam5 * pow(r2, 2)) / 2.;
-    } else if (i == 8) {
-        return (pow(c3, 2) * i2 * lam2) / 2. + (pow(c4, 2) * i2 * lam2) / 2. + (pow(i2, 3) * lam2) / 2. +
+                i2 * lam5 * r1 * r2 + (i1 * lam3 * pow(r2, 2)) / 2. +
+                (i1 * lam4 * pow(r2, 2)) / 2. - (i1 * lam5 * pow(r2, 2)) / 2.;
+    } else if (fld == 8) {
+        return (pow(c3, 2) * i2 * lam2) / 2. + (pow(c4, 2) * i2 * lam2) / 2. +
+                (pow(i2, 3) * lam2) / 2. +
                 (pow(c1, 2) * i2 * lam3) / 2. +
-                (pow(c2, 2) * i2 * lam3) / 2. + (pow(i1, 2) * i2 * lam3) / 2. + (c1 * c3 * i1 * lam4) / 2. +
+                (pow(c2, 2) * i2 * lam3) / 2. + (pow(i1, 2) * i2 * lam3) / 2. +
+                (c1 * c3 * i1 * lam4) / 2. +
                 (c2 * c4 * i1 * lam4) / 2. +
-                (pow(i1, 2) * i2 * lam4) / 2. + (c1 * c3 * i1 * lam5) / 2. + (c2 * c4 * i1 * lam5) / 2. +
+                (pow(i1, 2) * i2 * lam4) / 2. + (c1 * c3 * i1 * lam5) / 2. +
+                (c2 * c4 * i1 * lam5) / 2. +
                 (pow(i1, 2) * i2 * lam5) / 2. - i1 * m122 + i2 * m222 -
-                (c2 * c3 * lam4 * r1) / 2. + (c1 * c4 * lam4 * r1) / 2. + (c2 * c3 * lam5 * r1) / 2. -
+                (c2 * c3 * lam4 * r1) / 2. + (c1 * c4 * lam4 * r1) / 2. +
+                (c2 * c3 * lam5 * r1) / 2. -
                 (c1 * c4 * lam5 * r1) / 2. + (i2 * lam3 * pow(r1, 2)) / 2. +
-                (i2 * lam4 * pow(r1, 2)) / 2. - (i2 * lam5 * pow(r1, 2)) / 2. + i1 * lam5 * r1 * r2 +
-                (i2 * lam2 * pow(r2, 2)) / 2.;
+                (i2 * lam4 * pow(r1, 2)) / 2. - (i2 * lam5 * pow(r1, 2)) /
+                2. + i1 * lam5 * r1 * r2 + (i2 * lam2 * pow(r2, 2)) / 2.;
     } else
-        throw InvalidFldIndexException();
+        throw THDMException(THDMExceptionCode::ScalarMassesInvalidFldIndex);
 }
 
 /**
- * Compute the second derivative of the tree-level scalar potential wrt a field and a parameter
+ * Compute the second derivative of the tree-level scalar potential wrt a
+ * field and a parameter
  * @param fields 2HDM fields
  * @param fld index of field to take derivative of
  * @param par index of parameter to take derivative of
  * @return d^2V/dphi_i dp_j
  */
-double potential_tree_deriv_fld_par(Fields<double> &fields, Parameters<double> &, int fld, int par) {
+double potential_tree_deriv_fld_par(
+        Fields<double> &fields, Parameters<double> &, int fld, int par) {
+
+    if (fld < 1 || 8 < fld)
+        throw THDMException(THDMExceptionCode::ScalarMassesInvalidFldIndex);
+    if (par < 1 || 8 < par)
+        throw THDMException(THDMExceptionCode::ScalarMassesInvalidParIndex);
 
     double r1 = fields.r1;
     double r2 = fields.r2;
@@ -254,19 +313,22 @@ double potential_tree_deriv_fld_par(Fields<double> &fields, Parameters<double> &
         } else if (par == 3) {
             return 0;
         } else if (par == 4) {
-            return (pow(c1, 2) * r1) / 2. + (pow(c2, 2) * r1) / 2. + (pow(i1, 2) * r1) / 2. + pow(r1, 3) / 2.;
+            return (pow(c1, 2) * r1) / 2. + (pow(c2, 2) * r1) / 2. +
+                    (pow(i1, 2) * r1) / 2. + pow(r1, 3) / 2.;
         } else if (par == 5) {
             return 0;
         } else if (par == 6) {
-            return (pow(c3, 2) * r1) / 2. + (pow(c4, 2) * r1) / 2. + (pow(i2, 2) * r1) / 2. + (r1 * pow(r2, 2)) / 2.;
+            return (pow(c3, 2) * r1) / 2. + (pow(c4, 2) * r1) / 2. +
+                    (pow(i2, 2) * r1) / 2. + (r1 * pow(r2, 2)) / 2.;
         } else if (par == 7) {
-            return -(c2 * c3 * i2) / 2. + (c1 * c4 * i2) / 2. + (pow(i2, 2) * r1) / 2. + (c1 * c3 * r2) / 2. +
+            return -(c2 * c3 * i2) / 2. + (c1 * c4 * i2) / 2. +
+                    (pow(i2, 2) * r1) / 2. + (c1 * c3 * r2) / 2. +
                     (c2 * c4 * r2) / 2. + (r1 * pow(r2, 2)) / 2.;
         } else if (par == 8) {
-            return (c2 * c3 * i2) / 2. - (c1 * c4 * i2) / 2. - (pow(i2, 2) * r1) / 2. + (c1 * c3 * r2) / 2. +
+            return (c2 * c3 * i2) / 2. - (c1 * c4 * i2) / 2. -
+                    (pow(i2, 2) * r1) / 2. + (c1 * c3 * r2) / 2. +
                     (c2 * c4 * r2) / 2. + i1 * i2 * r2 + (r1 * pow(r2, 2)) / 2.;
-        } else
-            throw InvalidParIndexException();
+        }
     } else if (fld == 2) {
         if (par == 1) {
             return 0;
@@ -277,17 +339,21 @@ double potential_tree_deriv_fld_par(Fields<double> &fields, Parameters<double> &
         } else if (par == 4) {
             return 0;
         } else if (par == 5) {
-            return (pow(c3, 2) * r2) / 2. + (pow(c4, 2) * r2) / 2. + (pow(i2, 2) * r2) / 2. + pow(r2, 3) / 2.;
+            return (pow(c3, 2) * r2) / 2. + (pow(c4, 2) * r2) / 2. +
+                    (pow(i2, 2) * r2) / 2. + pow(r2, 3) / 2.;
         } else if (par == 6) {
-            return (pow(c1, 2) * r2) / 2. + (pow(c2, 2) * r2) / 2. + (pow(i1, 2) * r2) / 2. + (pow(r1, 2) * r2) / 2.;
+            return (pow(c1, 2) * r2) / 2. + (pow(c2, 2) * r2) / 2. +
+                    (pow(i1, 2) * r2) / 2. + (pow(r1, 2) * r2) / 2.;
         } else if (par == 7) {
-            return (c2 * c3 * i1) / 2. - (c1 * c4 * i1) / 2. + (c1 * c3 * r1) / 2. + (c2 * c4 * r1) / 2. +
+            return (c2 * c3 * i1) / 2. - (c1 * c4 * i1) / 2. +
+                    (c1 * c3 * r1) / 2. + (c2 * c4 * r1) / 2. +
                     (pow(i1, 2) * r2) / 2. + (pow(r1, 2) * r2) / 2.;
         } else if (par == 8) {
-            return -(c2 * c3 * i1) / 2. + (c1 * c4 * i1) / 2. + (c1 * c3 * r1) / 2. + (c2 * c4 * r1) / 2. +
-                    i1 * i2 * r1 - (pow(i1, 2) * r2) / 2. + (pow(r1, 2) * r2) / 2.;
-        } else
-            throw InvalidParIndexException();
+            return -(c2 * c3 * i1) / 2. + (c1 * c4 * i1) / 2. +
+                    (c1 * c3 * r1) / 2. + (c2 * c4 * r1) / 2. +
+                    i1 * i2 * r1 - (pow(i1, 2) * r2) / 2. +
+                    (pow(r1, 2) * r2) / 2.;
+        }
     } else if (fld == 3) {
         if (par == 1) {
             return c1;
@@ -296,19 +362,23 @@ double potential_tree_deriv_fld_par(Fields<double> &fields, Parameters<double> &
         } else if (par == 3) {
             return 0;
         } else if (par == 4) {
-            return pow(c1, 3) / 2. + (c1 * pow(c2, 2)) / 2. + (c1 * pow(i1, 2)) / 2. + (c1 * pow(r1, 2)) / 2.;
+            return pow(c1, 3) / 2. + (c1 * pow(c2, 2)) / 2. +
+                    (c1 * pow(i1, 2)) / 2. + (c1 * pow(r1, 2)) / 2.;
         } else if (par == 5) {
             return 0;
         } else if (par == 6) {
-            return (c1 * pow(c3, 2)) / 2. + (c1 * pow(c4, 2)) / 2. + (c1 * pow(i2, 2)) / 2. + (c1 * pow(r2, 2)) / 2.;
+            return (c1 * pow(c3, 2)) / 2. + (c1 * pow(c4, 2)) / 2. +
+                    (c1 * pow(i2, 2)) / 2. + (c1 * pow(r2, 2)) / 2.;
         } else if (par == 7) {
-            return (c1 * pow(c3, 2)) / 2. + (c1 * pow(c4, 2)) / 2. + (c3 * i1 * i2) / 2. + (c4 * i2 * r1) / 2. -
+            return (c1 * pow(c3, 2)) / 2. + (c1 * pow(c4, 2)) / 2. +
+                    (c3 * i1 * i2) / 2. + (c4 * i2 * r1) / 2. -
                     (c4 * i1 * r2) / 2. + (c3 * r1 * r2) / 2.;
         } else if (par == 8) {
-            return (c1 * pow(c3, 2)) / 2. + c2 * c3 * c4 - (c1 * pow(c4, 2)) / 2. + (c3 * i1 * i2) / 2. -
-                    (c4 * i2 * r1) / 2. + (c4 * i1 * r2) / 2. + (c3 * r1 * r2) / 2.;
-        } else
-            throw InvalidParIndexException();
+            return (c1 * pow(c3, 2)) / 2. + c2 * c3 * c4 -
+                    (c1 * pow(c4, 2)) / 2. + (c3 * i1 * i2) / 2. -
+                    (c4 * i2 * r1) / 2. + (c4 * i1 * r2) / 2. +
+                    (c3 * r1 * r2) / 2.;
+        }
     } else if (fld == 4) {
         if (par == 1) {
             return c2;
@@ -317,19 +387,23 @@ double potential_tree_deriv_fld_par(Fields<double> &fields, Parameters<double> &
         } else if (par == 3) {
             return 0;
         } else if (par == 4) {
-            return (pow(c1, 2) * c2) / 2. + pow(c2, 3) / 2. + (c2 * pow(i1, 2)) / 2. + (c2 * pow(r1, 2)) / 2.;
+            return (pow(c1, 2) * c2) / 2. + pow(c2, 3) / 2. +
+                    (c2 * pow(i1, 2)) / 2. + (c2 * pow(r1, 2)) / 2.;
         } else if (par == 5) {
             return 0;
         } else if (par == 6) {
-            return (c2 * pow(c3, 2)) / 2. + (c2 * pow(c4, 2)) / 2. + (c2 * pow(i2, 2)) / 2. + (c2 * pow(r2, 2)) / 2.;
+            return (c2 * pow(c3, 2)) / 2. + (c2 * pow(c4, 2)) / 2. +
+                    (c2 * pow(i2, 2)) / 2. + (c2 * pow(r2, 2)) / 2.;
         } else if (par == 7) {
-            return (c2 * pow(c3, 2)) / 2. + (c2 * pow(c4, 2)) / 2. + (c4 * i1 * i2) / 2. - (c3 * i2 * r1) / 2. +
+            return (c2 * pow(c3, 2)) / 2. + (c2 * pow(c4, 2)) / 2. +
+                    (c4 * i1 * i2) / 2. - (c3 * i2 * r1) / 2. +
                     (c3 * i1 * r2) / 2. + (c4 * r1 * r2) / 2.;
         } else if (par == 8) {
-            return -(c2 * pow(c3, 2)) / 2. + c1 * c3 * c4 + (c2 * pow(c4, 2)) / 2. + (c4 * i1 * i2) / 2. +
-                    (c3 * i2 * r1) / 2. - (c3 * i1 * r2) / 2. + (c4 * r1 * r2) / 2.;
-        } else
-            throw InvalidParIndexException();
+            return -(c2 * pow(c3, 2)) / 2. + c1 * c3 * c4 +
+                    (c2 * pow(c4, 2)) / 2. + (c4 * i1 * i2) / 2. +
+                    (c3 * i2 * r1) / 2. - (c3 * i1 * r2) / 2. +
+                    (c4 * r1 * r2) / 2.;
+        }
     } else if (fld == 5) {
         if (par == 1) {
             return 0;
@@ -340,17 +414,21 @@ double potential_tree_deriv_fld_par(Fields<double> &fields, Parameters<double> &
         } else if (par == 4) {
             return 0;
         } else if (par == 5) {
-            return pow(c3, 3) / 2. + (c3 * pow(c4, 2)) / 2. + (c3 * pow(i2, 2)) / 2. + (c3 * pow(r2, 2)) / 2.;
+            return pow(c3, 3) / 2. + (c3 * pow(c4, 2)) / 2. +
+                    (c3 * pow(i2, 2)) / 2. + (c3 * pow(r2, 2)) / 2.;
         } else if (par == 6) {
-            return (pow(c1, 2) * c3) / 2. + (pow(c2, 2) * c3) / 2. + (c3 * pow(i1, 2)) / 2. + (c3 * pow(r1, 2)) / 2.;
+            return (pow(c1, 2) * c3) / 2. + (pow(c2, 2) * c3) / 2. +
+                    (c3 * pow(i1, 2)) / 2. + (c3 * pow(r1, 2)) / 2.;
         } else if (par == 7) {
-            return (pow(c1, 2) * c3) / 2. + (pow(c2, 2) * c3) / 2. + (c1 * i1 * i2) / 2. - (c2 * i2 * r1) / 2. +
+            return (pow(c1, 2) * c3) / 2. + (pow(c2, 2) * c3) / 2. +
+                    (c1 * i1 * i2) / 2. - (c2 * i2 * r1) / 2. +
                     (c2 * i1 * r2) / 2. + (c1 * r1 * r2) / 2.;
         } else if (par == 8) {
-            return (pow(c1, 2) * c3) / 2. - (pow(c2, 2) * c3) / 2. + c1 * c2 * c4 + (c1 * i1 * i2) / 2. +
-                    (c2 * i2 * r1) / 2. - (c2 * i1 * r2) / 2. + (c1 * r1 * r2) / 2.;
-        } else
-            throw InvalidParIndexException();
+            return (pow(c1, 2) * c3) / 2. - (pow(c2, 2) * c3) / 2. +
+                    c1 * c2 * c4 + (c1 * i1 * i2) / 2. +
+                    (c2 * i2 * r1) / 2. - (c2 * i1 * r2) / 2. +
+                    (c1 * r1 * r2) / 2.;
+        }
     } else if (fld == 6) {
         if (par == 1) {
             return 0;
@@ -361,17 +439,21 @@ double potential_tree_deriv_fld_par(Fields<double> &fields, Parameters<double> &
         } else if (par == 4) {
             return 0;
         } else if (par == 5) {
-            return (pow(c3, 2) * c4) / 2. + pow(c4, 3) / 2. + (c4 * pow(i2, 2)) / 2. + (c4 * pow(r2, 2)) / 2.;
+            return (pow(c3, 2) * c4) / 2. + pow(c4, 3) / 2. +
+                    (c4 * pow(i2, 2)) / 2. + (c4 * pow(r2, 2)) / 2.;
         } else if (par == 6) {
-            return (pow(c1, 2) * c4) / 2. + (pow(c2, 2) * c4) / 2. + (c4 * pow(i1, 2)) / 2. + (c4 * pow(r1, 2)) / 2.;
+            return (pow(c1, 2) * c4) / 2. + (pow(c2, 2) * c4) / 2. +
+                    (c4 * pow(i1, 2)) / 2. + (c4 * pow(r1, 2)) / 2.;
         } else if (par == 7) {
-            return (pow(c1, 2) * c4) / 2. + (pow(c2, 2) * c4) / 2. + (c2 * i1 * i2) / 2. + (c1 * i2 * r1) / 2. -
+            return (pow(c1, 2) * c4) / 2. + (pow(c2, 2) * c4) / 2. +
+                    (c2 * i1 * i2) / 2. + (c1 * i2 * r1) / 2. -
                     (c1 * i1 * r2) / 2. + (c2 * r1 * r2) / 2.;
         } else if (par == 8) {
-            return c1 * c2 * c3 - (pow(c1, 2) * c4) / 2. + (pow(c2, 2) * c4) / 2. + (c2 * i1 * i2) / 2. -
-                    (c1 * i2 * r1) / 2. + (c1 * i1 * r2) / 2. + (c2 * r1 * r2) / 2.;
-        } else
-            throw InvalidParIndexException();
+            return c1 * c2 * c3 - (pow(c1, 2) * c4) / 2. +
+                    (pow(c2, 2) * c4) / 2. + (c2 * i1 * i2) / 2. -
+                    (c1 * i2 * r1) / 2. + (c1 * i1 * r2) / 2. +
+                    (c2 * r1 * r2) / 2.;
+        }
     } else if (fld == 7) {
         if (par == 1) {
             return i1;
@@ -380,19 +462,23 @@ double potential_tree_deriv_fld_par(Fields<double> &fields, Parameters<double> &
         } else if (par == 3) {
             return 0;
         } else if (par == 4) {
-            return (pow(c1, 2) * i1) / 2. + (pow(c2, 2) * i1) / 2. + pow(i1, 3) / 2. + (i1 * pow(r1, 2)) / 2.;
+            return (pow(c1, 2) * i1) / 2. + (pow(c2, 2) * i1) / 2. +
+                    pow(i1, 3) / 2. + (i1 * pow(r1, 2)) / 2.;
         } else if (par == 5) {
             return 0;
         } else if (par == 6) {
-            return (pow(c3, 2) * i1) / 2. + (pow(c4, 2) * i1) / 2. + (i1 * pow(i2, 2)) / 2. + (i1 * pow(r2, 2)) / 2.;
+            return (pow(c3, 2) * i1) / 2. + (pow(c4, 2) * i1) / 2. +
+                    (i1 * pow(i2, 2)) / 2. + (i1 * pow(r2, 2)) / 2.;
         } else if (par == 7) {
-            return (c1 * c3 * i2) / 2. + (c2 * c4 * i2) / 2. + (i1 * pow(i2, 2)) / 2. + (c2 * c3 * r2) / 2. -
+            return (c1 * c3 * i2) / 2. + (c2 * c4 * i2) / 2. +
+                    (i1 * pow(i2, 2)) / 2. + (c2 * c3 * r2) / 2. -
                     (c1 * c4 * r2) / 2. + (i1 * pow(r2, 2)) / 2.;
         } else if (par == 8) {
-            return (c1 * c3 * i2) / 2. + (c2 * c4 * i2) / 2. + (i1 * pow(i2, 2)) / 2. - (c2 * c3 * r2) / 2. +
-                    (c1 * c4 * r2) / 2. + i2 * r1 * r2 - (i1 * pow(r2, 2)) / 2.;
-        } else
-            throw InvalidParIndexException();
+            return (c1 * c3 * i2) / 2. + (c2 * c4 * i2) / 2. +
+                    (i1 * pow(i2, 2)) / 2. - (c2 * c3 * r2) / 2. +
+                    (c1 * c4 * r2) / 2. + i2 * r1 * r2 -
+                    (i1 * pow(r2, 2)) / 2.;
+        }
     } else if (fld == 8) {
         if (par == 1) {
             return 0;
@@ -403,19 +489,23 @@ double potential_tree_deriv_fld_par(Fields<double> &fields, Parameters<double> &
         } else if (par == 4) {
             return 0;
         } else if (par == 5) {
-            return (pow(c3, 2) * i2) / 2. + (pow(c4, 2) * i2) / 2. + pow(i2, 3) / 2. + (i2 * pow(r2, 2)) / 2.;
+            return (pow(c3, 2) * i2) / 2. + (pow(c4, 2) * i2) / 2. +
+                    pow(i2, 3) / 2. + (i2 * pow(r2, 2)) / 2.;
         } else if (par == 6) {
-            return (pow(c1, 2) * i2) / 2. + (pow(c2, 2) * i2) / 2. + (pow(i1, 2) * i2) / 2. + (i2 * pow(r1, 2)) / 2.;
+            return (pow(c1, 2) * i2) / 2. + (pow(c2, 2) * i2) / 2. +
+                    (pow(i1, 2) * i2) / 2. + (i2 * pow(r1, 2)) / 2.;
         } else if (par == 7) {
-            return (c1 * c3 * i1) / 2. + (c2 * c4 * i1) / 2. + (pow(i1, 2) * i2) / 2. - (c2 * c3 * r1) / 2. +
+            return (c1 * c3 * i1) / 2. + (c2 * c4 * i1) / 2. +
+                    (pow(i1, 2) * i2) / 2. - (c2 * c3 * r1) / 2. +
                     (c1 * c4 * r1) / 2. + (i2 * pow(r1, 2)) / 2.;
         } else if (par == 8) {
-            return (c1 * c3 * i1) / 2. + (c2 * c4 * i1) / 2. + (pow(i1, 2) * i2) / 2. + (c2 * c3 * r1) / 2. -
-                    (c1 * c4 * r1) / 2. - (i2 * pow(r1, 2)) / 2. + i1 * r1 * r2;
-        } else
-            throw InvalidParIndexException();
-    } else
-        throw InvalidFldIndexException();
+            return (c1 * c3 * i1) / 2. + (c2 * c4 * i1) / 2. +
+                    (pow(i1, 2) * i2) / 2. + (c2 * c3 * r1) / 2. -
+                    (c1 * c4 * r1) / 2. - (i2 * pow(r1, 2)) / 2. +
+                    i1 * r1 * r2;
+        }
+    }
+    return 0;
 }
 
 /**
@@ -424,7 +514,8 @@ double potential_tree_deriv_fld_par(Fields<double> &fields, Parameters<double> &
  * @param params 2HDM parameters
  * @return one-loop correction to the scalar potential
  */
-double potential_one_loop(Fields<double> &fields, Parameters<double> &params) {
+double potential_one_loop(
+        Fields<double> &fields, Parameters<double> &params) {
     double loop = 0.0;
     double mu2 = pow(params.mu, 2);
 
@@ -462,15 +553,16 @@ double potential_eff(Fields<double> &fields, Parameters<double> &params) {
 }
 
 /**
- * Compute the first derivative wrt a field of the one-loop correction to the scalar
- * potential
+ * Compute the first derivative wrt a field of the one-loop correction to the
+ * scalar potential
  * @param fields 2HDM fields
  * @param params 2HDM parameters
  * @param fld index of field to take derivative of
- * @return derivative wrt a field of the one-loop correction to the scalar potential
+ * @return derivative wrt a field of the one-loop correction to the scalar
+ * potential
  */
-double potential_one_loop_deriv(Fields<double> &fields,
-                                Parameters<double> &params, int fld) {
+double potential_one_loop_deriv(
+        Fields<double> &fields, Parameters<double> &params, int fld) {
     double mu2 = pow(params.mu, 2);
 
     double loop = 0.0;
@@ -505,17 +597,18 @@ double potential_one_loop_deriv(Fields<double> &fields,
 }
 
 /**
- * Compute the second derivative wrt a field of the one-loop correction to the scalar
- * potential
+ * Compute the second derivative wrt a field of the one-loop correction to the
+ * scalar potential
  * @param fields 2HDM fields
  * @param params 2HDM parameters
  * @param fld1 index of first field to take derivative of
  * @param fld2 index of second field to take derivative of
- * @return second derivative wrt a field of the one-loop correction to the scalar
- * potential
+ * @return second derivative wrt a field of the one-loop correction to the
+ * scalar potential
  */
 double potential_one_loop_deriv(Fields<double> &fields,
-                                Parameters<double> &params, int fld1, int fld2) {
+                                Parameters<double> &params,
+                                int fld1, int fld2) {
     double mu2 = pow(params.mu, 2);
 
     double loop = 0.0;
@@ -563,34 +656,23 @@ double potential_one_loop_deriv(Fields<double> &fields,
 }
 
 /**
- * Compute the first derivative wrt a parameter of the one-loop correction to the scalar
- * potential
+ * Compute the first derivative wrt a parameter of the one-loop correction to
+ * the scalar potential
  * @param fields 2HDM fields
  * @param params 2HDM parameters
  * @param fld index of field to take derivative of
  * @param par index of parameter to take derivative of
- * @return first derivative wrt a parameter of the one-loop correction to the scalar
- * potential
+ * @return first derivative wrt a parameter of the one-loop correction to the
+ * scalar potential
  */
 double potential_one_loop_deriv_fld_par(
-        Fields<double> &fields, Parameters<double> &params, int fld, int par) {
+        Fields<double> &fields, Parameters<double> &params,
+        int fld, int par) {
     double mu2 = pow(params.mu, 2);
 
     double loop = 0.0;
 
     // Sum of scalar contributions
-
-    /*
-     * Commented out code uses the determinant method to find
-     * derivatives of eigenvalues. Shouldn't need that for the mixed
-     * derivative of the effective potential.
-     */
-    // auto M = scalar_squared_mass_matrix_arma(fields, params);
-    // auto dM1 = scalar_squared_mass_matrix_deriv(fields, params, fld);
-    // auto dM2 = scalar_squared_mass_matrix_deriv(fields, params, par);
-    // auto d2M = scalar_squared_mass_matrix_deriv_fld_par(fields, params, fld, par);
-    // auto tups = eigenvalue_first_second_derivative(M, dM1, dM2, d2M);
-
     auto tups = scalar_squared_masses_deriv_fld_par(fields, params, fld, par);
     for (auto tup: tups) {
         double lam = std::get<0>(tup);
@@ -613,7 +695,8 @@ double potential_one_loop_deriv_fld_par(
  * @param fld index of field to take derivative of
  * @return first derivative wrt a field of the effective scalar potential
  */
-double potential_eff_deriv(Fields<double> &fields, Parameters<double> &params, int fld) {
+double potential_eff_deriv(Fields<double> &fields, Parameters<double> &params,
+                           int fld) {
     return potential_one_loop_deriv(fields, params, fld) +
             potential_tree_deriv(fields, params, fld);
 }
@@ -629,20 +712,22 @@ double potential_eff_deriv(Fields<double> &fields, Parameters<double> &params, i
 double potential_eff_deriv(Fields<double> &fields, Parameters<double> &params,
                            int fld1, int fld2) {
     auto mat = scalar_squared_mass_matrix(fields, params);
-    return potential_one_loop_deriv(fields, params, fld1, fld2) + mat[fld1 - 1][fld2 - 1];
+    return potential_one_loop_deriv(fields, params, fld1, fld2) +
+            mat[fld1 - 1][fld2 - 1];
 }
 
 /**
- * Compute the second derivative wrt a field and a parameter of the effective scalar
- * potential
+ * Compute the second derivative wrt a field and a parameter of the effective
+ * scalar potential
  * @param fields 2HDM fields
  * @param params 2HDM parameters
  * @param fld index of the field to take derivative of
  * @param par index of the parameter to take derivative of
  * @return
  */
-double potential_eff_deriv_fld_par(Fields<double> &fields, Parameters<double> &params,
-                                   int fld, int par) {
+double potential_eff_deriv_fld_par(
+        Fields<double> &fields, Parameters<double> &params,
+        int fld, int par) {
     return (potential_one_loop_deriv_fld_par(fields, params, fld, par) +
             potential_tree_deriv_fld_par(fields, params, fld, par));
 }
@@ -653,13 +738,16 @@ double potential_eff_deriv_fld_par(Fields<double> &fields, Parameters<double> &p
  * @param params THDM params
  * @return std::vector<std::vector<double>> hessian
  */
-std::vector<std::vector<double>> potential_eff_hessian(Fields<double> &fields, Parameters<double> &params) {
+std::vector<std::vector<double>> potential_eff_hessian(
+        Fields<double> &fields, Parameters<double> &params) {
 
     std::vector<std::vector<double>> hessian(8, std::vector<double>(8));
     auto mat = scalar_squared_mass_matrix(fields, params);
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            hessian[i][j] = potential_one_loop_deriv(fields, params, i + 1, j + 1) + mat[i][j];
+            hessian[i][j] =
+                    potential_one_loop_deriv(fields, params, i + 1, j + 1) +
+                            mat[i][j];
         }
     }
     return hessian;
@@ -671,7 +759,8 @@ std::vector<std::vector<double>> potential_eff_hessian(Fields<double> &fields, P
  * @param params THDM parameters
  * @return std::vector<double> hessian_evals.
  */
-std::vector<double> potential_eff_hessian_evals(Fields<double> &fields, Parameters<double> &params) {
+std::vector<double> potential_eff_hessian_evals(
+        Fields<double> &fields, Parameters<double> &params) {
 
     auto hessian = potential_eff_hessian(fields, params);
     return jacobi(hessian);

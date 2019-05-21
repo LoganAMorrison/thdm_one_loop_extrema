@@ -127,18 +127,6 @@ set_target_properties(test_minimize PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
         )
 
-add_executable(test_qr test_qr.cpp)
-target_link_libraries(test_qr
-        gtest_main
-        thdm
-        ${ARMADILLO_LIBRARIES}
-        ${Boost_LIBRARIES}
-        GSL::gsl
-        GSL::gslcblas
-        Eigen3::Eigen)
-set_target_properties(test_qr PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
-        )
 
 add_executable(test_model test_model.cpp)
 target_link_libraries(test_model
@@ -153,19 +141,6 @@ set_target_properties(test_model PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
         )
 
-add_executable(test_nlopt test_nlopt.cpp)
-target_link_libraries(test_nlopt
-        gtest_main
-        thdm
-        ${ARMADILLO_LIBRARIES}
-        ${Boost_LIBRARIES}
-        GSL::gsl
-        GSL::gslcblas
-        Eigen3::Eigen
-        ${NLOPT_LIBRARIES})
-set_target_properties(test_nlopt PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
-        )
 
 add_executable(test_tree_roots_explict test_tree_roots_explict.cpp)
 target_link_libraries(test_tree_roots_explict
@@ -175,8 +150,7 @@ target_link_libraries(test_tree_roots_explict
         ${Boost_LIBRARIES}
         GSL::gsl
         GSL::gslcblas
-        Eigen3::Eigen
-        ${NLOPT_LIBRARIES})
+        Eigen3::Eigen)
 set_target_properties(test_tree_roots_explict PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
         )
@@ -189,8 +163,7 @@ target_link_libraries(test_gauge_masses
         ${Boost_LIBRARIES}
         GSL::gsl
         GSL::gslcblas
-        Eigen3::Eigen
-        ${NLOPT_LIBRARIES})
+        Eigen3::Eigen)
 set_target_properties(test_gauge_masses PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
         )
@@ -203,8 +176,7 @@ target_link_libraries(test_rge
         ${Boost_LIBRARIES}
         GSL::gsl
         GSL::gslcblas
-        Eigen3::Eigen
-        ${NLOPT_LIBRARIES})
+        Eigen3::Eigen)
 set_target_properties(test_rge PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
         )
