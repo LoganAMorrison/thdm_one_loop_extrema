@@ -18,8 +18,6 @@
 
 using namespace thdm;
 
-std::string project_path = "/Users/loganmorrison/CLionProjects/thdm_one_loop_extrema";
-
 struct Point {
     Parameters<double> params;
     Vacuum<double> nvac;
@@ -37,7 +35,8 @@ struct PotentialData {
  * @return vector of the parameters.
  */
 std::vector<Point> read_data_from_file() {
-    std::string type_a1_path = project_path + "/run_data/type_a1.csv";
+    static std::string project_path = "/Users/loganmorrison/CLionProjects/thdm_one_loop_extrema";
+    static std::string type_a1_path = project_path + "/run_data/type_a1.csv";
 
     std::ifstream infile(type_a1_path);
     std::vector<Point> data;
@@ -89,6 +88,8 @@ std::vector<Point> read_data_from_file() {
         cbvac.vevs[2] = std::stod(value);
         set_top_yukawa(params, nvac);
         std::cout << params << std::endl;
+        std::cout << nvac << std::endl;
+        std::cout << cbvac << std::endl;
 
         data.push_back(Point{params, nvac, cbvac});
     }
@@ -159,6 +160,7 @@ int main() {
     // Generate potential data and save
     for (auto &point: points) {
         // Create file name
+        std::string project_path = "/Users/loganmorrison/CLionProjects/thdm_one_loop_extrema";
         std::string file = project_path + "/run_data/potentials/potential_" +
                 std::to_string(counter) + ".csv";
         auto data = compute_potential_data(point);

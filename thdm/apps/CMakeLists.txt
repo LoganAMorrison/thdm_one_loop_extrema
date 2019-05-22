@@ -12,6 +12,7 @@ target_link_libraries(${INITIAL_DATA_GENERATOR_APP}
         thdm
         ${ARMADILLO_LIBRARIES}
         ${Boost_LIBRARIES}
+        ${Boost_THREAD_LIBRARY}
         GSL::gsl
         GSL::gslcblas
         Eigen3::Eigen)

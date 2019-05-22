@@ -19,8 +19,15 @@
 #include <vector>
 #include <tuple>
 #include <iostream>
+#include <random>
 
 namespace thdm {
+
+struct Point {
+    Parameters<double> params;
+    Vacuum<double> nvac;
+    Vacuum<double> cbvac;
+};
 
 class Model {
 
@@ -29,15 +36,7 @@ public:
     Parameters<double> params;
 
     std::vector<Vacuum<double>> one_loop_vacuua{};
-    Vacuum<double> one_loop_deepest{};
-    Vacuum<double> one_loop_deepest_cb{};
-    Vacuum<double> one_loop_deepest_normal{};
-
     std::vector<Vacuum<double>> tree_vacuua{};
-
-    bool has_normal_min = false;
-    bool has_cb_min = false;
-    bool is_cb_deepest = false;
 
     /**
      * Initialize an empty model.
@@ -45,30 +44,19 @@ public:
     Model() = default;
 
     /**
-     * Start a model from know vacuua.
-     * @param params THDM parameters.
-     * @param nvac The normal vacuum.
-     * @param cbvac The charge-breaking vacuum.
+     * Start a model from known parameters and vacuua.
+     * @param Point A point consisting of parameters,
      */
-    Model(Parameters<double> &params, Vacuum<double> &nvac, Vacuum<double> &cbvac) {
+    explicit Model(const Point &point) {
+        params = point.params;
+        auto nvac = point.nvac;
+        auto cbvac = point.cbvac;
+        // Make sure vacuua are filled in.
+        complete_vacuua(nvac, false);
+        complete_vacuua(cbvac, false);
         // Add the known normal and charge-breaking vacuua to list.
         one_loop_vacuua.push_back(nvac);
         one_loop_vacuua.push_back(cbvac);
-        // Find all the tree roots.
-        tree_vacuua = get_tree_roots(params);
-        // Fill in the potential and types for the tree-vacuua.
-        for (auto &vac : tree_vacuua) {
-            complete_vacuua(vac, true);
-        }
-        // Use tree-level roots to find new minima.
-        minimize_from_tree_roots_and_refine();
-        // Find deepest normal and cb extrema
-        find_deepest_eff();
-
-        determine_if_has_normal_cb_min();
-
-        is_cb_deepest = (one_loop_deepest_cb.potential <
-                one_loop_deepest_normal.potential);
     }
 
     /**
@@ -80,21 +68,84 @@ public:
      */
     explicit Model(double renorm_scale) {
         solve_model(renorm_scale);
+    }
+
+    /**
+     * Starting from all the tree roots, minimize the effective potential to
+     * find new minima.
+     */
+    void minimize_from_tree_roots_and_refine() {
+        // Find all tree roots:
         // Find all tree roots
         tree_vacuua = get_tree_roots(params);
-        // complete roots
+        // complete tree-roots
         for (auto &vac : tree_vacuua) {
             complete_vacuua(vac, true);
         }
-        // Use tree-level roots to find new minima.
-        minimize_from_tree_roots_and_refine();
-        // Find deepest normal and cb extrema
-        find_deepest_eff();
+        // Starting from tree-roots, try to find a new one-loop min
+        for (const auto &vac : tree_vacuua) {
+            try {
+                auto new_vac = vac;
+                minimize_potential_eff(params, new_vac);
+                refine_root(params, new_vac);
+                // Make sure this new vacuum is really a root.
+                if (is_vacuum_valid(params, new_vac)) {
+                    // Make sure root isn't duplicate
+                    bool should_add = true;
+                    for (const auto &one_loop_vac : one_loop_vacuua) {
+                        if (are_vacuua_approx_equal(new_vac, one_loop_vac)) {
+                            should_add = false;
+                            break;
+                        }
+                    }
+                    if (should_add) {
+                        complete_vacuua(new_vac);
+                        one_loop_vacuua.push_back(new_vac);
+                    }
+                }
+            } catch (THDMException &e) {
+                // that one didn't work! don't add it.
+            }
+        }
+    }
 
-        determine_if_has_normal_cb_min();
+    /**
+     * Starting from a number of random vacuua, minimize the effective potential
+     * and add unique results to vacuum list.
+     * @param num_vacs
+     */
+    void minimize_from_random_vacuum_and_refine(int num_vacs) {
+        static std::random_device rd{};
+        static std::mt19937 engine{rd()};
+        static std::uniform_real_distribution<double> dist{0.0, 1.0};
 
-        is_cb_deepest = (one_loop_deepest_cb.potential <
-                one_loop_deepest_normal.potential);
+        // Generate random new vacuua
+        std::vector<Vacuum<double>> random_vacs(num_vacs, Vacuum<double>{});
+        for (auto &vac: random_vacs) {
+            vac.vevs[0] = 2.0 * params.mu * (dist(engine) - 0.5);
+            vac.vevs[1] = 2.0 * params.mu * (dist(engine) - 0.5);
+            vac.vevs[2] = 2.0 * params.mu * (dist(engine) - 0.5);
+        }
+        // Starting from random vacuua, minimize and refine roots
+        for (auto &vac: random_vacs) {
+            minimize_potential_eff(params, vac);
+            refine_root(params, vac);
+        }
+        // Check if vacuua are unique and valid. If they are, add to the list
+        for (auto &vac: random_vacs) {
+            if (is_vacuum_unique(vac) && is_vacuum_valid(params, vac)) {
+                complete_vacuua(vac);
+                one_loop_vacuua.push_back(vac);
+            }
+        }
+    }
+
+    /**
+     * Sort the one_loop vacuua so that the deepest is in the fist spot.
+     */
+    void sort_vacuua() {
+        std::sort(one_loop_vacuua.begin(),
+                  one_loop_vacuua.end(), std::less<Vacuum<double>>());
     }
 
 private:
@@ -145,9 +196,6 @@ private:
                 done = false;
             }
         }
-        one_loop_deepest_normal = nvac;
-        one_loop_deepest_cb = cbvac;
-        one_loop_deepest = (nvac.potential < cbvac.potential) ? nvac : cbvac;
         complete_vacuua(nvac);
         complete_vacuua(cbvac);
         one_loop_vacuua.push_back(nvac);
@@ -155,76 +203,90 @@ private:
     }
 
     /**
-     * Starting from all the tree roots, minimize the effective potential to
-     * find new minima.
+     * Determine if a vacuum is unique against vacuua in one_loop_vacuua.
+     * @param vac Vacuum to check
+     * @return True if it is unique.
      */
-    void minimize_from_tree_roots_and_refine() {
-        // Starting from tree-roots, try to find a new one-loop min
-        for (const auto &vac : tree_vacuua) {
+    bool is_vacuum_unique(const Vacuum<double> &vac) {
+        bool is_new = true;
+        for (auto &current_vac: one_loop_vacuua) {
             try {
-                auto new_vac = Vacuum<double>(vac);
-                minimize_potential_eff(params, new_vac);
-                refine_root(params, new_vac);
-                // Make sure this new vacuum is really a root.
-                if (is_vacuum_valid(params, new_vac)) {
-                    // Make sure root isn't duplicate
-                    bool should_add = true;
-                    for (const auto &one_loop_vac : one_loop_vacuua) {
-                        if (are_vacuua_approx_equal(new_vac, one_loop_vac)) {
-                            should_add = false;
-                            break;
-                        }
-                    }
-                    if (should_add) {
-                        complete_vacuua(new_vac);
-                        one_loop_vacuua.push_back(new_vac);
-                    }
+                if (are_vacuua_approx_equal(current_vac, vac)) {
+                    is_new = false;
+                    break;
                 }
-            } catch (...) {
-                // that one didn't work! don't add it.
+            } catch (THDMException &e) {
+                is_new = false;
+                break;
             }
         }
+        return is_new;
     }
+};
 
-    /**
-     * Find the deepest vacuum in the lot of vacuua. Additionally, find deepest
-     * normal and charge-breaking minima.
-     */
-    void find_deepest_eff() {
-        for (const auto &vac : one_loop_vacuua) {
-            if (vac.potential < one_loop_deepest.potential)
-                one_loop_deepest = vac;
-            if (is_vacuum_normal(vac)) {
-                if (vac.potential < one_loop_deepest_normal.potential) {
-                    one_loop_deepest_normal = vac;
-                }
-            }
-            if (!is_vacuum_normal(vac)) {
-                if (vac.potential < one_loop_deepest_cb.potential) {
-                    one_loop_deepest_cb = vac;
-                }
-            }
+/**
+ * Get the deepest vacuum.
+ * @param model
+ * @return
+ */
+Vacuum<double> get_deepest_vacuum(Model &model) {
+    model.sort_vacuua();
+    return model.one_loop_vacuua[0];
+}
+
+/**
+ * Get the deepest charge breaking vacuum.
+ * @param model
+ * @return
+ */
+Vacuum<double> get_deepest_cb_vacuum(Model &model) {
+    model.sort_vacuua();
+    for (auto &vac: model.one_loop_vacuua) {
+        if (!is_vacuum_normal(vac)) {
+            return vac;
         }
     }
+}
 
-    /**
-     * Determine if we have both charge-breaking and normal minima.
-     */
-    void determine_if_has_normal_cb_min() {
-        has_normal_min = false;
-        has_cb_min = false;
-        for (auto &vac : one_loop_vacuua) {
-            if (is_vacuum_normal(vac) &&
-                    vac.extrema_type == SingleExtremaType::Minimum) {
-                has_normal_min = true;
-            }
-            if (!is_vacuum_normal(vac) &&
-                    vac.extrema_type == SingleExtremaType::Minimum) {
+/**
+ * Get the deepest normal vacuum.
+ * @param model
+ * @return
+ */
+Vacuum<double> get_deepest_normal_vacuum(Model &model) {
+    model.sort_vacuua();
+    for (auto &vac: model.one_loop_vacuua) {
+        if (is_vacuum_normal(vac)) {
+            return vac;
+        }
+    }
+}
+
+/**
+ * Determine if the model normal and charge-breaking minima
+ * @param model Model to check
+ * @param nvac Deepest normal minimum (if model has one.)
+ * @param cbvac Deepest cb minimum (if model has one.)
+ * @return
+ */
+bool has_cb_and_normal_minima(Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac) {
+    model.sort_vacuua();
+    bool has_cb_min = false;
+    bool has_n_min = false;
+    for (auto &vac: model.one_loop_vacuua) {
+        if (vac.extrema_type == SingleExtremaType::Minimum) {
+            if (is_vacuum_normal(vac) && !has_n_min) {
+                nvac = vac;
+                has_n_min = true;
+            } else if (!is_vacuum_normal(vac) && !has_cb_min) {
+                cbvac = vac;
                 has_cb_min = true;
             }
         }
     }
-};
+    return has_cb_min && has_n_min;
+}
+
 
 }
 

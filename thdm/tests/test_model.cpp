@@ -25,7 +25,7 @@ void display_model(Model &model) {
     std::cout << "Has CB and normal mininima:" << std::endl;
     std::cout << (model.has_cb_min && model.has_normal_min) << std::endl;
     std::cout << "Is CB the deepest:" << std::endl;
-    std::cout << (model.is_cb_deepest) << std::endl;
+    std::cout << (model.is_deepest_cb) << std::endl;
 
     std::cout << "All One Loop Extrema" << std::endl;
     std::cout << "--------------------" << std::endl;
@@ -53,6 +53,14 @@ TEST(ModelTest, Test1) {
             done = false;
         }
     }
+
+    Vacuum<double> nvac = model.one_loop_deepest_normal;
+    Vacuum<double> cbvac = model.one_loop_deepest_cb;
+
+    std::cout << std::endl;
+    std::cout << "nvac: " << nvac << std::endl;
+    std::cout << "cbvac: " << cbvac << std::endl;
+    std::cout << "nvac < cbvac: " << (nvac < cbvac) << std::endl;
 
     display_model(model);
 

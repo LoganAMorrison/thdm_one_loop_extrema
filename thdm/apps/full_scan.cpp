@@ -68,14 +68,14 @@ bool is_type_a1(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac)
         return false;
     }
 
-    if (model.is_cb_deepest && model.has_cb_min && model.has_normal_min) {
+    if (model.is_deepest_cb && model.has_cb_min && model.has_normal_min) {
         cbvac = model.one_loop_deepest;
         // Find the deepest normal min
         nvac.potential = 0.0;
         for (auto &vac : model.one_loop_vacuua) {
-            if (std::abs(vac.vevs[2]) < 1e-2) {
+            if (is_vacuum_normal(vac)) {
                 if (vac.extrema_type == SingleExtremaType::Minimum) {
-                    if (vac.potential < nvac.potential) {
+                    if (vac < nvac) {
                         nvac = vac;
                     }
                 }
@@ -91,14 +91,14 @@ bool is_type_a2(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac)
         return false;
     }
 
-    if (!model.is_cb_deepest && model.has_cb_min && model.has_normal_min) {
+    if (!model.is_deepest_cb && model.has_cb_min && model.has_normal_min) {
         nvac = model.one_loop_deepest;
         // Find deepest cb min
         cbvac.potential = 0.0;
         for (auto &vac : model.one_loop_vacuua) {
-            if (std::abs(vac.vevs[2]) > 1e-2) {
+            if (!is_vacuum_normal(vac)) {
                 if (vac.extrema_type == SingleExtremaType::Minimum) {
-                    if (vac.potential < cbvac.potential) {
+                    if (vac < cbvac) {
                         cbvac = vac;
                     }
                 }
@@ -107,15 +107,13 @@ bool is_type_a2(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac)
         return true;
     }
     return false;
-
-
 }
 
 bool is_type_b(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac) {
     if (model.one_loop_deepest.extrema_type != SingleExtremaType::Minimum) {
         return false;
     }
-    if (model.is_cb_deepest && model.has_cb_min && !model.has_normal_min) {
+    if (model.is_deepest_cb && model.has_cb_min && !model.has_normal_min) {
         cbvac = model.one_loop_deepest;
         // Find cb min
         for (auto &vac : model.one_loop_vacuua) {
@@ -135,7 +133,7 @@ bool is_type_c(const Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac) 
     if (model.one_loop_deepest.extrema_type != SingleExtremaType::Minimum) {
         return false;
     }
-    if (!model.is_cb_deepest && !model.has_cb_min && model.has_normal_min) {
+    if (!model.is_deepest_cb && !model.has_cb_min && model.has_normal_min) {
         nvac = model.one_loop_deepest;
         // Find cb min
         for (auto &vac : model.one_loop_vacuua) {

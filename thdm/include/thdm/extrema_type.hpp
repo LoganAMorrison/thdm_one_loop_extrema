@@ -9,6 +9,7 @@
 #include "thdm/parameters.hpp"
 #include "thdm/fields.hpp"
 #include "thdm/potentials.hpp"
+#include "thdm/constants.hpp"
 #include <algorithm>
 #include <vector>
 
@@ -28,10 +29,10 @@ SingleExtremaType determine_single_extrema_type_tree(Parameters<double> &params,
     // Maximum : [-100,-100, -1e-8, 1e-8, 1e-8]
     // undefined : [-1e-8, -1e-8, -1e-8, 1e-8, 1e-8]
 
-    if (min_masses < -1e-7) {
+    if (min_masses < -ZERO_MASS_TOL) {
         // Either a saddle or maximum
         // Saddle if one large mass
-        if (max_masses > 1e-7)
+        if (max_masses > ZERO_MASS_TOL)
             type = SingleExtremaType::Saddle;
             // Maximum if all masses negative
         else

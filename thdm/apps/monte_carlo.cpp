@@ -124,7 +124,7 @@ Model get_new_model(const Model &model) {
                 // So far so good. But let us generate the model then check
                 // that CB is really the global minimum
                 auto new_model = Model(_params, nvac, cbvac);
-                if (new_model.is_cb_deepest &&
+                if (new_model.is_deepest_cb &&
                         new_model.has_normal_min &&
                         new_model.has_cb_min) {
                     // All good!
