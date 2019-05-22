@@ -7,6 +7,8 @@
 #include <cmath>
 #include <exception>
 #include <vector>
+#include <iostream>
+#include <ostream>
 
 namespace thdm {
 

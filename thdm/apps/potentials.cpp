@@ -9,6 +9,7 @@
 #include "thdm/fermion_masses.hpp"
 #include "thdm/gauge_masses.hpp"
 #include "thdm/validation.hpp"
+#include "thdm/model.hpp"
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -17,12 +18,6 @@
 #include <iomanip>
 
 using namespace thdm;
-
-struct Point {
-    Parameters<double> params;
-    Vacuum<double> nvac;
-    Vacuum<double> cbvac;
-};
 
 struct PotentialData {
     std::vector<double> ts;

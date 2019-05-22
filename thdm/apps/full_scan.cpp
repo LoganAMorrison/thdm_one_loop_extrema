@@ -25,12 +25,6 @@ size_t COUNTER = 0;
 size_t type_a1_counter = 0;
 size_t type_a2_counter = 0;
 
-struct Point {
-    Parameters<double> params;
-    Vacuum<double> nvac;
-    Vacuum<double> cbvac;
-};
-
 void save_point(const Point &point, const std::string &file_name) {
 
     std::ofstream out_file;

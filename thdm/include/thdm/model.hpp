@@ -51,6 +51,7 @@ public:
         params = point.params;
         auto nvac = point.nvac;
         auto cbvac = point.cbvac;
+        set_top_yukawa(params, nvac);
         // Make sure vacuua are filled in.
         complete_vacuua(nvac, false);
         complete_vacuua(cbvac, false);
@@ -128,14 +129,16 @@ public:
         }
         // Starting from random vacuua, minimize and refine roots
         for (auto &vac: random_vacs) {
-            minimize_potential_eff(params, vac);
-            refine_root(params, vac);
-        }
-        // Check if vacuua are unique and valid. If they are, add to the list
-        for (auto &vac: random_vacs) {
-            if (is_vacuum_unique(vac) && is_vacuum_valid(params, vac)) {
-                complete_vacuua(vac);
-                one_loop_vacuua.push_back(vac);
+            try {
+                minimize_potential_eff(params, vac);
+                refine_root(params, vac);
+                // Check that the vacuum is unique and valid.
+                if (is_vacuum_unique(vac) && is_vacuum_valid(params, vac)) {
+                    complete_vacuua(vac);
+                    one_loop_vacuua.push_back(vac);
+                }
+            } catch (THDMException &e) {
+                // Failed.
             }
         }
     }
@@ -189,7 +192,7 @@ private:
                 // Check that nvac is valid
                 done = is_vacuum_valid(params, nvac);
                 // Check that cbvac is valid
-                done = done && is_vacuum_valid(params, nvac);
+                done = done && is_vacuum_valid(params, cbvac);
                 // Check that root-finder succeeded.
                 done = done && (status == 0);
             } catch (THDMException &e) {
@@ -235,31 +238,40 @@ Vacuum<double> get_deepest_vacuum(Model &model) {
 }
 
 /**
- * Get the deepest charge breaking vacuum.
- * @param model
- * @return
+ * Get the deepest cb vacuum.
+ * @param model THDM vacuum.
+ * @param Vacuum The deepest cb vacuum.
+ * @return True if cb vacuum was found.
  */
-Vacuum<double> get_deepest_cb_vacuum(Model &model) {
+bool get_deepest_cb_vacuum(Model &model, Vacuum<double> &cbvac) {
     model.sort_vacuua();
+    bool found = false;
     for (auto &vac: model.one_loop_vacuua) {
         if (!is_vacuum_normal(vac)) {
-            return vac;
+            cbvac = vac;
+            found = true;
+            break;
         }
     }
+    return found;
 }
 
 /**
  * Get the deepest normal vacuum.
- * @param model
- * @return
+ * @param model THDM vacuum.
+ * @param Vacuum The deepest normal vacuum.
+ * @return True if normal vacuum was found.
  */
-Vacuum<double> get_deepest_normal_vacuum(Model &model) {
+bool get_deepest_normal_vacuum(Model &model, Vacuum<double> &nvac) {
     model.sort_vacuua();
+    bool found = false;
     for (auto &vac: model.one_loop_vacuua) {
         if (is_vacuum_normal(vac)) {
-            return vac;
+            nvac = vac;
+            found = true;
         }
     }
+    return found;
 }
 
 /**
@@ -269,7 +281,8 @@ Vacuum<double> get_deepest_normal_vacuum(Model &model) {
  * @param cbvac Deepest cb minimum (if model has one.)
  * @return
  */
-bool has_cb_and_normal_minima(Model &model, Vacuum<double> &nvac, Vacuum<double> &cbvac) {
+bool has_cb_and_normal_minima(Model &model, Vacuum<double> &nvac,
+                              Vacuum<double> &cbvac) {
     model.sort_vacuua();
     bool has_cb_min = false;
     bool has_n_min = false;

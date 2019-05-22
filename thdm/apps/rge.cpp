@@ -11,6 +11,7 @@
 #include "thdm/potentials.hpp"
 #include "thdm/root_refine.hpp"
 #include "thdm/vacuua.hpp"
+#include "thdm/model.hpp"
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -23,12 +24,6 @@
 using namespace thdm;
 
 std::string project_path = "/Users/loganmorrison/CLionProjects/thdm_one_loop_extrema";
-
-struct Point {
-    Parameters<double> params;
-    Vacuum<double> nvac;
-    Vacuum<double> cbvac;
-};
 
 struct RGEData {
     std::vector<double> mus;

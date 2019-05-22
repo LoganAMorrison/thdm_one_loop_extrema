@@ -38,7 +38,8 @@ std::map<int, int> create_key() {
 
     std::map<int, int> key;
     for (size_t i = 0; i < shuffled_indices.size(); i++) {
-        key.insert(std::make_tuple(i, shuffled_indices[i]));
+        key[i] = shuffled_indices[i];
+        //key.insert(std::make_tuple(i, shuffled_indices[i]));
     }
     return key;
 }

@@ -27,9 +27,15 @@ void save_point(const Model &model) {
     boost::lock_guard<boost::mutex> lock(mtx);
     // Create and open file object
     std::ofstream out_file;
-    out_file.open("/Users/loganmorrison/CLionProjects"
-                  "/thdm_one_loop_extrema/run_data/raw_data.csv",
-                  std::ios_base::app);
+    std::string file_name;
+    #ifdef SCALAR_ONLY
+    file_name = "/Users/loganmorrison/CLionProjects"
+                "/thdm_one_loop_extrema/run_data/raw_data_scalar_only.csv";
+    #else
+    file_name = "/Users/loganmorrison/CLionProjects"
+                "/thdm_one_loop_extrema/run_data/raw_data.csv";
+    #endif
+    out_file.open(file_name, std::ios_base::app);
     out_file << std::setprecision(15);
 
     // Normal vacuum will be in first place and cb in second.

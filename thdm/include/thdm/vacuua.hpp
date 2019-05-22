@@ -3,6 +3,8 @@
 
 #include <cmath>
 #include <random>
+#include <iostream>
+#include <ostream>
 
 namespace thdm {
 

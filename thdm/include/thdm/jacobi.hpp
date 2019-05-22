@@ -5,6 +5,7 @@
 #include <numeric>
 #include <cmath>
 #include <vector>
+#include <limits>
 
 namespace thdm {
 /* Maximum iterations for Jacobi algorithm */

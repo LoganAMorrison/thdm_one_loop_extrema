@@ -518,13 +518,15 @@ double potential_one_loop(
         Fields<double> &fields, Parameters<double> &params) {
     double loop = 0.0;
     double mu2 = pow(params.mu, 2);
-
     // Scalar contributions
     auto scalar_masses = scalar_squared_masses(fields, params);
     for (auto lam : scalar_masses) {
         if (fabs(lam) > 1e-8)
             loop += pow(lam, 2) * (log(fabs(lam / mu2)) - 1.5);
     }
+    #ifdef SCALAR_ONLY
+    return loop / (64.0 * pow(M_PI, 2));
+    #endif
     // Gauge contributions
     auto gauge_masses = gauge_squared_masses(fields, params);
     for (auto lam : gauge_masses) {
@@ -576,6 +578,9 @@ double potential_one_loop_deriv(
         if (fabs(lam) > 1e-8)
             loop += lam * dlam * (log(fabs(lam) / mu2) - 1);
     }
+    #ifdef SCALAR_ONLY
+    return loop / (32.0 * pow(M_PI, 2));
+    #endif
     // Gauge contributions
     auto gauge_masses = gauge_squared_masses_deriv(fields, params, fld);
     for (auto tup : gauge_masses) {
@@ -626,6 +631,9 @@ double potential_one_loop_deriv(Fields<double> &fields,
         loop += lam * d2lam * (log(fabs(lam) / mu2) - 1);
         loop += dlam1 * dlam2 * log(fabs(lam) / mu2);
     }
+    #ifdef SCALAR_ONLY
+    return loop / (32.0 * pow(M_PI, 2));
+    #endif
     // Gauge contributions
     auto gauge_masses1 = gauge_squared_masses_deriv(fields, params, fld1);
     auto gauge_masses2 = gauge_squared_masses_deriv(fields, params, fld2);
