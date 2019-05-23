@@ -2,6 +2,16 @@
 // Created by Logan Morrison on 2019-05-11.
 //
 
+/*
+ * File to compute the renormalization group evolution (RGE) of the THDM
+ * parameters and values of the potentials at the normal and charge-breaking
+ * minima. This exercise is to demonstrate that we can achieve normal and
+ * charge-breaking minima in the THDM at one-loop irrespective of the
+ * renormalization scale. Additionally if things are done correctly, the
+ * difference in the values of the potential at different renormalization
+ * scales should be RGE independent.
+ */
+
 #include "thdm/beta_functions.hpp"
 #include "thdm/fermion_masses.hpp"
 #include "thdm/fields.hpp"
@@ -23,8 +33,11 @@
 
 using namespace thdm;
 
-std::string project_path = "/Users/loganmorrison/CLionProjects/thdm_one_loop_extrema";
-
+/**
+ * Struct to store the RGE data. This stores vectors of the renormalization
+ * scales, the THDM parameters at the different scales, and the values of the
+ * effective potential at the normal and charge-breaking minima.
+ */
 struct RGEData {
     std::vector<double> mus;
     std::vector<Parameters<double>> params_vec;
@@ -33,10 +46,13 @@ struct RGEData {
 };
 
 /**
- * Read in all parameters, normal vacuua and CB vacuua for the type A1 data.
- * @return vector of the parameters.
+ * Read in all parameters, normal vacuua and CB vacuua for the type A1 data,
+ * which has a global charge-breaking minimum and a local normal minimum.
+ * @return vector of the parameters, normal vacuua and charge-breaking vacuua.
  */
 std::vector<Point> read_data_from_file() {
+    std::string project_path = "/Users/loganmorrison/CLionProjects/"
+                               "thdm_one_loop_extrema";
     std::string type_a1_path = project_path + "/run_data/type_a1.csv";
 
     std::ifstream infile(type_a1_path);
@@ -95,10 +111,18 @@ std::vector<Point> read_data_from_file() {
     return data;
 }
 
+/**
+ * Perform the RGE, i.e. run the parameters from one renormalization scale
+ * to another.
+ * @param point Point struct containing the THDM parameters, and the normal
+ * and charge-breaking minima.
+ * @return RGEData struct containing the renormalization scales and the
+ * THDM parameter and effective potentials at the different scales.
+ */
 RGEData run_point(const Point &point) {
     int num_mus = 100;
     double mu1 = 246.0;
-    double mu2 = 200.0;
+    double mu2 = mu1 + 50.0;
     double mu_step = (mu2 - mu1) / (num_mus - 1);
 
     auto params = point.params;
@@ -145,6 +169,15 @@ RGEData run_point(const Point &point) {
     return rge_data;
 }
 
+/**
+ * Save the for the RGE data and renormalization scales to a data file in the
+ * 'run_data/RGE' directory. The naming conversion for the files
+ * corresponding to which point in the 'type_a1.csv' file we are using. For
+ * example, 'rge_0.csv' has all the RGE data for the first point in the
+ * 'type_a1.csv' data file.
+ * @param data The RGE data to save.
+ * @param file File name of file we would like to save to.
+ */
 void save_rge_data(RGEData data, const std::string &save_file) {
     std::ofstream out_file;
     out_file.open(save_file);
@@ -180,22 +213,23 @@ void save_rge_data(RGEData data, const std::string &save_file) {
 
 int main() {
 
-
+    std::string project_path = "/Users/loganmorrison/CLionProjects/"
+                               "thdm_one_loop_extrema";
     // Read in all data
     auto data = read_data_from_file();
 
     // For each data point, run and save data to file.
     int counter = 0; // Counter for naming the files.
-    for (auto point: data) {
+    for (const auto &point: data) {
         std::string save_file = (project_path +
                 "/run_data/RGE/rge_" + std::to_string(counter) + ".csv");
         try {
             auto rge_data = run_point(point);
             save_rge_data(rge_data, save_file);
-            counter++;
         } catch (...) {
             // Oops! something went wrong..
         }
+        counter++;
     }
 
     return 0;

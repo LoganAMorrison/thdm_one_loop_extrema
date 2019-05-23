@@ -2,6 +2,17 @@
 // Created by Logan Morrison on 2019-05-19.
 //
 
+/*
+ * This file is for computing the effective potential along a line connenting
+ * a normal and charge-breaking extrema. We read in data from 'type_a1.csv',
+ * the file where there exists parameters and vacuua such that there is a
+ * global charge-breaking minimum and local normal minimum, We then evaluate
+ * the effective potential along a line connecting these two vacuua, i.e.:
+ *      V_eff(t) = n_vac * (1-t) * cb_vac * t
+ * where 0 < t < 1 (actually, we use a slightly larger window to captue the
+ * behavior beyond the minima.)
+ */
+
 #include "thdm/potentials.hpp"
 #include "thdm/fields.hpp"
 #include "thdm/parameters.hpp"
@@ -19,6 +30,10 @@
 
 using namespace thdm;
 
+/**
+ * Struct to hold the t's (the parametric values), the effective potentials
+ * and the tree-level potentials.
+ */
 struct PotentialData {
     std::vector<double> ts;
     std::vector<double> v_effs;
@@ -26,8 +41,9 @@ struct PotentialData {
 };
 
 /**
- * Read in all parameters, normal vacuua and CB vacuua for the type A1 data.
- * @return vector of the parameters.
+ * Read in all parameters, normal vacuua and CB vacuua for the type A1 data,
+ * which has a global charge-breaking minimum and a local normal minimum.
+ * @return vector of the parameters, normal vacuua and charge-breaking vacuua.
  */
 std::vector<Point> read_data_from_file() {
     static std::string project_path = "/Users/loganmorrison/CLionProjects/thdm_one_loop_extrema";
@@ -93,6 +109,14 @@ std::vector<Point> read_data_from_file() {
     return data;
 }
 
+/**
+ * Compute the effective and tree-level potential along a line connecting the
+ * normal and charge-breaking vacuua.
+ * @param point Point struct holding the THDM parameters, the normal and
+ * charge-breaking vacuua.
+ * @return A data structure holding vectors of the parametric parameters (ts),
+ * and the effective and tree-level potentials evaluated at the ts.
+ */
 PotentialData compute_potential_data(const Point &point) {
     size_t NUM_POINTS = 200;
     std::vector<double> ts(NUM_POINTS);
@@ -127,6 +151,15 @@ PotentialData compute_potential_data(const Point &point) {
     return data;
 }
 
+/**
+ * Save the for the potentials and parametric values to a data file in the
+ * 'run_data/potentials' directory. The naming conversion for the files
+ * corresponding to which point in the 'type_a1.csv' file we are using. For
+ * example, 'potentials_0.csv' has all the potential data for the first point
+ * in the 'type_a1.csv' data file.
+ * @param data The potential data to save.
+ * @param file File name of file we would like to save to.
+ */
 void save_data_to_file(const PotentialData &data, const std::string &file) {
     std::ofstream out_file;
     out_file.open(file);

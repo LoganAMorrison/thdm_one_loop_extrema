@@ -21,6 +21,7 @@ set(LIB_HEADERS
         ${THDM_INCLUDE_DIR}/fermion_masses.hpp
         ${THDM_INCLUDE_DIR}/beta_functions.hpp
         ${THDM_INCLUDE_DIR}/validation.hpp
+        ${THDM_INCLUDE_DIR}/csv_parser.hpp
         )
 
 # Define two variables in order not to repeat ourselves.
