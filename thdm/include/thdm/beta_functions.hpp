@@ -20,6 +20,11 @@ public:
 
     ~RGESystem() = default;
 
+    /**
+     * Strong coupling constant evaluated at a given scale.
+     * @param mu Renormalization scale
+     * @return Strong coupling constant
+     */
     static double gs(double mu) {
         return 8.88577 / sqrt(21.612 + 7.0 * log(mu));
     }
@@ -33,14 +38,23 @@ public:
                 3.0 * pow(params.yt, 2));
     }
 
+    /**
+     * Beta function for the for the SU(2) gauge coupling.
+     */
     double beta_g() {
         return -3.0 * pow(params.g, 3);
     }
 
+    /**
+     * Beta function for the for the U(1) gauge coupling.
+     */
     double beta_gp() {
         return 7.0 * pow(params.gp, 3);
     }
 
+    /**
+     * Beta function for the for the quartic coupling lambda_1.
+     */
     double beta_lam1() {
         double lam1 = params.lam1;
         double lam3 = params.lam3;
@@ -60,6 +74,9 @@ public:
                 4.0 * gamma_1() * lam1);
     }
 
+    /**
+     * Beta function for the for the quartic coupling lambda_2.
+     */
     double beta_lam2() {
         double lam2 = params.lam2;
         double lam3 = params.lam3;
@@ -81,6 +98,9 @@ public:
                 12.0 * pow(yt, 4));
     }
 
+    /**
+     * Beta function for the for the quartic coupling lambda_3.
+     */
     double beta_lam3() {
         double lam1 = params.lam1;
         double lam2 = params.lam2;
@@ -90,16 +110,19 @@ public:
         double gp = params.gp;
         double g = params.g;
 
-        return ((lam1 + lam2) * (6.0 * lam3 + 2.0 * lam4) +
+        return (lam1 + lam2) * (6.0 * lam3 + 2.0 * lam4) +
                 4.0 * pow(lam3, 2) +
                 2.0 * pow(lam4, 2) +
                 2.0 * pow(lam5, 2) +
                 9.0 / 4.0 * pow(g, 4) -
                 3.0 / 2.0 * pow(g, 2) * pow(gp, 2) +
                 3.0 / 4.0 * pow(gp, 4) -
-                2.0 * (gamma_1() + gamma_2()) * lam3);
+                2.0 * (gamma_1() + gamma_2()) * lam3;
     }
 
+    /**
+     * Beta function for the for the quartic coupling lambda_4.
+     */
     double beta_lam4() {
         double lam1 = params.lam1;
         double lam2 = params.lam2;
@@ -109,14 +132,17 @@ public:
         double gp = params.gp;
         double g = params.g;
 
-        return (2.0 * (lam1 + lam2) * lam4 +
+        return 2.0 * (lam1 + lam2) * lam4 +
                 8.0 * lam3 * lam4 +
                 4.0 * pow(lam4, 2) +
                 8.0 * pow(lam5, 2) -
                 2.0 * (gamma_1() + gamma_2()) * lam4 +
-                3.0 * pow(g, 2) * pow(gp, 2));
+                3.0 * pow(g, 2) * pow(gp, 2);
     }
 
+    /**
+     * Beta function for the for the quartic coupling lambda_5.
+     */
     double beta_lam5() {
         double lam1 = params.lam1;
         double lam2 = params.lam2;
@@ -124,10 +150,13 @@ public:
         double lam4 = params.lam4;
         double lam5 = params.lam5;
 
-        return lam5 * (lam1 + lam2 + 4.0 * lam3 + 6.0 * lam4 -
+        return 2.0 * lam5 * (lam1 + lam2 + 4.0 * lam3 + 6.0 * lam4 -
                 gamma_1() - gamma_2());
     }
 
+    /**
+     * Beta function for the for the quadratic coupling m112.
+     */
     double beta_m112() {
         double lam1 = params.lam1;
         double lam3 = params.lam3;
@@ -135,11 +164,14 @@ public:
         double m112 = params.m112;
         double m222 = params.m222;
 
-        return (6.0 * lam1 * m112 +
+        return 6.0 * lam1 * m112 +
                 (4.0 * lam3 + 2.0 * lam4) * m222 -
-                2.0 * gamma_1() * m112);
+                2.0 * gamma_1() * m112;
     }
 
+    /**
+     * Beta function for the for the quadratic coupling m222.
+     */
     double beta_m222() {
         double lam2 = params.lam2;
         double lam3 = params.lam3;
@@ -147,11 +179,14 @@ public:
         double m112 = params.m112;
         double m222 = params.m222;
 
-        return (6.0 * lam2 * m222 +
+        return 6.0 * lam2 * m222 +
                 (4.0 * lam3 + 2.0 * lam4) * m112 -
-                2.0 * gamma_2() * m222);
+                2.0 * gamma_2() * m222;
     }
 
+    /**
+     * Beta function for the for the quadratic coupling m122.
+     */
     double beta_m122() {
         double lam3 = params.lam3;
         double lam4 = params.lam4;
@@ -162,6 +197,9 @@ public:
                 gamma_1() - gamma_2());
     }
 
+    /**
+     * Beta function for the for the top quark yukawa.
+     */
     double beta_yt() {
         double yt = params.yt;
         double g = params.g;
