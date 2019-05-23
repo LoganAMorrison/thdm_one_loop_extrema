@@ -34,11 +34,11 @@ public:
     }
 
     double beta_g() {
-        return -3.0 * pow(params.g, 3) / (16.0 * pow(M_PI, 2));
+        return -3.0 * pow(params.g, 3);
     }
 
     double beta_gp() {
-        return 7.0 * pow(params.gp, 3) / (16.0 * pow(M_PI, 2));
+        return 7.0 * pow(params.gp, 3);
     }
 
     double beta_lam1() {
