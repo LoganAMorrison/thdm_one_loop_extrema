@@ -43,6 +43,9 @@ struct RGEData {
     std::vector<Parameters<double>> params_vec;
     std::vector<double> potential_eff_normal;
     std::vector<double> potential_eff_cb;
+    std::vector<Vacuum<double>> nvacs;
+    std::vector<Vacuum<double>> cbvacs;
+    std::vector<double> gss;
 };
 
 /**
@@ -120,15 +123,16 @@ std::vector<Point> read_data_from_file() {
  * THDM parameter and effective potentials at the different scales.
  */
 RGEData run_point(const Point &point) {
-    int num_mus = 100;
+    int num_mus = 200;
     double mu1 = 246.0;
-    double mu2 = mu1 + 50.0;
+    double mu2 = mu1 + 500;
     double mu_step = (mu2 - mu1) / (num_mus - 1);
 
     auto params = point.params;
     auto nvac = point.nvac;
     auto cbvac = point.cbvac;
     Fields<double> fields{};
+    RGESystem rge_system(params);
 
     params.gp = U1Y_COUP;
     params.g = SU2_COUP;
@@ -137,7 +141,10 @@ RGEData run_point(const Point &point) {
     RGEData rge_data{std::vector<double>(num_mus), // mus
             std::vector<Parameters<double>>(num_mus), // parameters
             std::vector<double>(num_mus), // effective potential eff normal
-            std::vector<double>(num_mus) // effective potential eff cb
+            std::vector<double>(num_mus), // effective potential eff cb
+            std::vector<Vacuum<double>>(num_mus), // normal vevs
+            std::vector<Vacuum<double>>(num_mus), // charge-breaking vevs
+            std::vector<double>(num_mus) // strong couplings
     };
 
     // Fill in the values for mus
@@ -151,11 +158,16 @@ RGEData run_point(const Point &point) {
     fields.set_fields(cbvac);
     rge_data.potential_eff_cb[0] = potential_eff(fields, params);
     rge_data.params_vec[0] = params;
+    // Save the vevs
+    rge_data.nvacs[0] = nvac;
+    rge_data.cbvacs[0] = cbvac;
+    rge_data.gss[0] = rge_system.gs(rge_data.mus[0]);
 
     // run data from old mu to new mu
     for (int i = 1; i < num_mus; i++) {
         params = run_parameters(params, rge_data.mus[i - 1], rge_data.mus[i]);
         rge_data.params_vec[i] = params;
+        RGESystem _rge_system(params);
         // Root solve for the new vacuua starting at the old vacuua.
         refine_root(params, nvac);
         refine_root(params, cbvac);
@@ -164,6 +176,10 @@ RGEData run_point(const Point &point) {
         rge_data.potential_eff_normal[i] = potential_eff(fields, params);
         fields.set_fields(cbvac);
         rge_data.potential_eff_cb[i] = potential_eff(fields, params);
+        //Save vevs and strong coupling
+        rge_data.nvacs[i] = nvac;
+        rge_data.cbvacs[i] = cbvac;
+        rge_data.gss[i] = _rge_system.gs(rge_data.mus[i]);
     }
 
     return rge_data;
@@ -188,7 +204,10 @@ void save_rge_data(RGEData data, const std::string &save_file) {
              << "m112" << "," << "m122" << "," << "m222" << ","
              << "lam1" << "," << "lam2" << "," << "lam3" << ","
              << "lam4" << "," << "lam5" << "," << "yt" << ","
-             << "gp" << "," << "g" << std::endl;
+             << "gp" << "," << "g" << "," << "gs" << ","
+             << "nvev1" << "," << "nvev2" << "," << "nvev3" << ","
+             << "cbvev1" << "," << "cbvev2" << "," << "cbvev3" <<
+             std::endl;
 
     // Write data
     for (size_t i = 0; i < data.mus.size(); i++) {
@@ -205,7 +224,14 @@ void save_rge_data(RGEData data, const std::string &save_file) {
         out_file << data.params_vec[i].lam5 << ",";
         out_file << data.params_vec[i].yt << ",";
         out_file << data.params_vec[i].gp << ",";
-        out_file << data.params_vec[i].g << std::endl;
+        out_file << data.params_vec[i].g << ",";
+        out_file << data.gss[i] << ",";
+        out_file << data.nvacs[i].vevs[0] << ",";
+        out_file << data.nvacs[i].vevs[1] << ",";
+        out_file << data.nvacs[i].vevs[2] << ",";
+        out_file << data.cbvacs[i].vevs[0] << ",";
+        out_file << data.cbvacs[i].vevs[1] << ",";
+        out_file << data.cbvacs[i].vevs[2] << std::endl;
     }
 
     out_file.close();
