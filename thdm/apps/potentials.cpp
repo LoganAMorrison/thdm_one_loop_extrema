@@ -80,6 +80,8 @@ std::vector<Point> read_data_from_file() {
         getline(infile, value, ',');
         params.lam5 = std::stod(value);
         getline(infile, value, ',');
+        params.yt = std::stod(value);
+        getline(infile, value, ',');
         params.mu = std::stod(value);
         // Read in normal vacuum
         Vacuum<double> nvac{};
@@ -97,7 +99,7 @@ std::vector<Point> read_data_from_file() {
         cbvac.vevs[1] = std::stod(value);
         getline(infile, value);
         cbvac.vevs[2] = std::stod(value);
-        set_top_yukawa(params, nvac);
+
         std::cout << params << std::endl;
         std::cout << nvac << std::endl;
         std::cout << cbvac << std::endl;

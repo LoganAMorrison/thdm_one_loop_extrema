@@ -531,14 +531,14 @@ double potential_one_loop(
     auto gauge_masses = gauge_squared_masses(fields, params);
     for (auto lam : gauge_masses) {
         if (lam != 0) {
-            loop += 3.0 * pow(lam, 2) * (log(fabs(lam / mu2)) - 2.5);
+            loop += 3.0 * pow(lam, 2) * (log(fabs(lam / mu2)) - 5.0 / 6.0);
         }
     }
     // Top contribution
     double top_mass = top_mass_squared(fields, params);
 
     if (top_mass != 0) {
-        loop -= 6.0 * pow(top_mass, 2) * (log(fabs(top_mass) / mu2) - 1.5);
+        loop -= 12.0 * pow(top_mass, 2) * (log(fabs(top_mass) / mu2) - 1.5);
     }
 
     return loop / (64.0 * pow(M_PI, 2));

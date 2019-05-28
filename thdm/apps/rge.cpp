@@ -21,7 +21,6 @@
 #include "thdm/potentials.hpp"
 #include "thdm/root_refine.hpp"
 #include "thdm/vacuua.hpp"
-#include "thdm/model.hpp"
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -40,7 +39,7 @@ using namespace thdm;
  */
 struct RGEData {
     std::vector<double> mus;
-    std::vector<Parameters<double>> params_vec;
+    std::vector<Parameters < double>> params_vec;
     std::vector<double> potential_eff_normal;
     std::vector<double> potential_eff_cb;
     std::vector<Vacuum<double>> nvacs;
@@ -89,6 +88,8 @@ std::vector<Point> read_data_from_file() {
         getline(infile, value, ',');
         params.lam5 = std::stod(value);
         getline(infile, value, ',');
+        params.yt = std::stod(value);
+        getline(infile, value, ',');
         params.mu = std::stod(value);
         // Read in normal vacuum
         Vacuum<double> nvac{};
@@ -132,14 +133,12 @@ RGEData run_point(const Point &point) {
     auto nvac = point.nvac;
     auto cbvac = point.cbvac;
     Fields<double> fields{};
-    RGESystem rge_system(params);
 
     params.gp = U1Y_COUP;
     params.g = SU2_COUP;
-    set_top_yukawa(params, nvac);
 
     RGEData rge_data{std::vector<double>(num_mus), // mus
-            std::vector<Parameters<double>>(num_mus), // parameters
+            std::vector<Parameters < double>>(num_mus), // parameters
             std::vector<double>(num_mus), // effective potential eff normal
             std::vector<double>(num_mus), // effective potential eff cb
             std::vector<Vacuum<double>>(num_mus), // normal vevs
@@ -161,13 +160,12 @@ RGEData run_point(const Point &point) {
     // Save the vevs
     rge_data.nvacs[0] = nvac;
     rge_data.cbvacs[0] = cbvac;
-    rge_data.gss[0] = rge_system.gs(rge_data.mus[0]);
+    rge_data.gss[0] = RGESystem::gs(rge_data.mus[0]);
 
     // run data from old mu to new mu
     for (int i = 1; i < num_mus; i++) {
         params = run_parameters(params, rge_data.mus[i - 1], rge_data.mus[i]);
         rge_data.params_vec[i] = params;
-        RGESystem _rge_system(params);
         // Root solve for the new vacuua starting at the old vacuua.
         refine_root(params, nvac);
         refine_root(params, cbvac);
@@ -179,7 +177,7 @@ RGEData run_point(const Point &point) {
         //Save vevs and strong coupling
         rge_data.nvacs[i] = nvac;
         rge_data.cbvacs[i] = cbvac;
-        rge_data.gss[i] = _rge_system.gs(rge_data.mus[i]);
+        rge_data.gss[i] = RGESystem::gs(rge_data.mus[i]);
     }
 
     return rge_data;

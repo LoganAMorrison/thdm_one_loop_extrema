@@ -87,6 +87,7 @@ void write_good_data(const Point &point, const std::string &file_name) {
     out_file << params.lam3 << ",";
     out_file << params.lam4 << ",";
     out_file << params.lam5 << ",";
+    out_file << params.yt << ",";
     out_file << params.mu << ",";
     out_file << nvac.vevs[0] << ",";
     out_file << nvac.vevs[1] << ",";
@@ -224,14 +225,16 @@ void write_headers() {
 
     out_file_a1 << "m112" << "," << "m122" << "," << "m222" << ","
                 << "lam1" << "," << "lam2" << "," << "lam3" << ","
-                << "lam4" << "," << "lam5" << "," << "mu" << ","
-                << "nvev1" << "," << "nvev2" << "," << "nvev3" << ","
-                << "cbvev1" << "," << "cbvev2" << "," << "cbvev3" << std::endl;
+                << "lam4" << "," << "lam5" << "," << "yt" << ","
+                << "mu" << "," << "nvev1" << "," << "nvev2" << ","
+                << "nvev3" << "," << "cbvev1" << "," << "cbvev2" << ","
+                << "cbvev3" << std::endl;
     out_file_a2 << "m112" << "," << "m122" << "," << "m222" << ","
                 << "lam1" << "," << "lam2" << "," << "lam3" << ","
-                << "lam4" << "," << "lam5" << "," << "mu" << ","
-                << "nvev1" << "," << "nvev2" << "," << "nvev3" << ","
-                << "cbvev1" << "," << "cbvev2" << "," << "cbvev3" << std::endl;
+                << "lam4" << "," << "lam5" << "," << "yt" << ","
+                << "mu" << "," << "nvev1" << "," << "nvev2" << ","
+                << "nvev3" << "," << "cbvev1" << "," << "cbvev2" << ","
+                << "cbvev3" << std::endl;
 
     out_file_a1.close();
     out_file_a2.close();

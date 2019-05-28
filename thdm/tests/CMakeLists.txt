@@ -180,3 +180,16 @@ target_link_libraries(test_rge
 set_target_properties(test_rge PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
         )
+
+add_executable(test_with_pedro test_with_pedro.cpp)
+target_link_libraries(test_with_pedro
+        gtest_main
+        thdm
+        ${ARMADILLO_LIBRARIES}
+        ${Boost_LIBRARIES}
+        GSL::gsl
+        GSL::gslcblas
+        Eigen3::Eigen)
+set_target_properties(test_with_pedro PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
+        )
