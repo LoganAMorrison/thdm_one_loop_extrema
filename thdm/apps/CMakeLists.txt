@@ -97,3 +97,17 @@ target_link_libraries(${POTENTIALS}
 set_target_properties(${POTENTIALS} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
         )
+
+set(COMPARE_WITH_PEDRO compare_with_pedro)
+add_executable(${COMPARE_WITH_PEDRO} compare_with_pedro.cpp)
+target_link_libraries(${COMPARE_WITH_PEDRO}
+        thdm
+        ${ARMADILLO_LIBRARIES}
+        ${Boost_LIBRARIES}
+        GSL::gsl
+        GSL::gslcblas
+        Eigen3::Eigen)
+
+set_target_properties(${COMPARE_WITH_PEDRO} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}../../bin
+        )

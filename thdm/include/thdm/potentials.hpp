@@ -538,7 +538,7 @@ double potential_one_loop(
     double top_mass = top_mass_squared(fields, params);
 
     if (top_mass != 0) {
-        loop -= 12.0 * pow(top_mass, 2) * (log(fabs(top_mass) / mu2) - 1.5);
+        loop += -12.0 * pow(top_mass, 2) * (log(fabs(top_mass) / mu2) - 1.5);
     }
 
     return loop / (64.0 * pow(M_PI, 2));
@@ -576,7 +576,7 @@ double potential_one_loop_deriv(
         double dlam = std::get<1>(tup);
 
         if (fabs(lam) > 1e-8)
-            loop += lam * dlam * (log(fabs(lam) / mu2) - 1);
+            loop += lam * dlam * (log(fabs(lam) / mu2) - 1.0);
     }
     #ifdef SCALAR_ONLY
     return loop / (32.0 * pow(M_PI, 2));
@@ -588,14 +588,14 @@ double potential_one_loop_deriv(
         double dlam = std::get<1>(tup);
 
         if (fabs(lam) > 1e-8)
-            loop += 3.0 * lam * dlam * (log(fabs(lam) / mu2) - 2);
+            loop += 3.0 * lam * dlam * (log(fabs(lam) / mu2) - 1.0 / 3.0);
     }
     // Top contribution
-    double mtop2 = top_mass_squared(fields, params);
-    double mtop2_deriv = top_mass_squared_deriv(fields, params, fld);
-    // Factor of 3 for colors and 2 for spins
-    if (mtop2 != 0) {
-        loop -= 6.0 * mtop2 * mtop2_deriv * (log(fabs(mtop2) / mu2) - 1);
+    double mtop_sqr = top_mass_squared(fields, params);
+    // Factor of 3 for colors and 2 for spins, 2 for left-right
+    if (mtop_sqr != 0) {
+        double dmtop_sqr = top_mass_squared_deriv(fields, params, fld);
+        loop += -12.0 * mtop_sqr * dmtop_sqr * (log(fabs(mtop_sqr) / mu2) - 1.0);
     }
 
     return loop / (32.0 * pow(M_PI, 2));
@@ -645,19 +645,19 @@ double potential_one_loop_deriv(Fields<double> &fields,
         double d2lam = std::get<1>(gauge_masses3[i]);
 
         if (lam != 0.0) {
-            loop += 3.0 * lam * d2lam * (log(fabs(lam) / mu2) - 2);
-            loop += 3.0 * dlam1 * dlam2 * (log(fabs(lam) / mu2) - 1);
+            loop += 3.0 * lam * d2lam * (log(fabs(lam) / mu2) - 1.0);
+            loop += 3.0 * dlam1 * dlam2 * (log(fabs(lam) / mu2) + 2.0 / 3.0);
         }
     }
     // Top contribution
-    double mtop2 = top_mass_squared(fields, params);
-    double mtop2_deriv1 = top_mass_squared_deriv(fields, params, fld1);
-    double mtop2_deriv2 = top_mass_squared_deriv(fields, params, fld2);
-    double mtop2_deriv3 = top_mass_squared_deriv(fields, params, fld1, fld2);
-    // Factor of 3 for colors and 2 for spins
-    if (mtop2 != 0) {
-        loop -= 6.0 * mtop2 * mtop2_deriv3 * (log(fabs(mtop2) / mu2) - 1);
-        loop -= 6.0 * mtop2_deriv1 * mtop2_deriv2 * log(fabs(mtop2) / mu2);
+    double mtop_sqr = top_mass_squared(fields, params);
+    // Factor of 3 for colors and 2 for spins and 2 for right-left
+    if (mtop_sqr != 0) {
+        double lam1 = top_mass_squared_deriv(fields, params, fld1);
+        double lam2 = top_mass_squared_deriv(fields, params, fld2);
+        double d2lam = top_mass_squared_deriv(fields, params, fld1, fld2);
+        loop += -12.0 * mtop_sqr * d2lam * (log(fabs(mtop_sqr) / mu2) - 1.0);
+        loop += -12.0 * lam1 * lam2 * log(fabs(mtop_sqr) / mu2);
     }
 
     return loop / (32.0 * pow(M_PI, 2));
