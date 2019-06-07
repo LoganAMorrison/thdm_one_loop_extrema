@@ -71,23 +71,23 @@ int main() {
     Vacuum<double> nvac{};
     Vacuum<double> cbvac{};
     Fields<double> fields{};
-    params.m112 = -56769.1625189425;
-    params.m122 = 11298.9441043711;
-    params.m222 = -21800.5075577879;
+    params.m112 = -68565.417571077;
+    params.m122 = 212.879551931601;
+    params.m222 =-25472.8371733382;
 
-    params.lam1 = 5.08772715231133;
-    params.lam2 = 0.657186787219266;
-    params.lam3 = 1.94804091410591;
-    params.lam4 = 2.20182701539137;
-    params.lam5 = -0.570051230985773;
-    params.yt = 1.02110482180414;
+    params.lam1 = 6.82033686923365;
+    params.lam2 = 0.84217650859847;
+    params.lam3 = 2.52068856888243;
+    params.lam4 = 0.795114747809148;
+    params.lam5 = -0.640248307167735;
+    params.yt = 0.995310366281959;
     params.mu = 246;
-    nvac.vevs[0] = -55.7386132154807;
-    nvac.vevs[1] = -239.602184874878;
+    nvac.vevs[0] = 9.62297558376271;
+    nvac.vevs[1] = 245.811713189006;
     nvac.vevs[2] = 0;
-    cbvac.vevs[0] = 116.453931975248;
-    cbvac.vevs[1] = 118.024105034008;
-    cbvac.vevs[2] = -70.3895466120712;
+    cbvac.vevs[0] = -83.4733492946056;
+    cbvac.vevs[1] = -33.086784045566;
+    cbvac.vevs[2] = 116.283964204495;
 
     fields.set_fields(nvac);
     auto deriv_scalar_masses_r1 = scalar_squared_masses_deriv_fld(fields, params, 1);

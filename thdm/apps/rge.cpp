@@ -126,7 +126,7 @@ std::vector<Point> read_data_from_file() {
 RGEData run_point(const Point &point) {
     int num_mus = 200;
     double mu1 = 246.0;
-    double mu2 = mu1 + 500;
+    double mu2 = mu1 + 200;
     double mu_step = (mu2 - mu1) / (num_mus - 1);
 
     auto params = point.params;
