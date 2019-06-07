@@ -11,6 +11,7 @@
 #include <iostream>
 #include <armadillo>
 #include <assert.h>
+#include <exception>
 
 namespace thdm {
 
@@ -517,31 +518,31 @@ double potential_tree_deriv_fld_par(
 double potential_one_loop(
         Fields<double> &fields, Parameters<double> &params) {
     double loop = 0.0;
-    double mu2 = pow(params.mu, 2);
+    double mu2 = params.mu * params.mu;
     // Scalar contributions
     auto scalar_masses = scalar_squared_masses(fields, params);
     for (auto lam : scalar_masses) {
         if (fabs(lam) > 1e-8)
-            loop += pow(lam, 2) * (log(fabs(lam / mu2)) - 1.5);
+            loop += lam * lam * (log(fabs(lam / mu2)) - 1.5);
     }
     #ifdef SCALAR_ONLY
-    return loop / (64.0 * pow(M_PI, 2));
+    return loop / (64.0 * M_PI * M_PI);
     #endif
     // Gauge contributions
     auto gauge_masses = gauge_squared_masses(fields, params);
     for (auto lam : gauge_masses) {
         if (lam != 0) {
-            loop += 3.0 * pow(lam, 2) * (log(fabs(lam / mu2)) - 5.0 / 6.0);
+            loop += 3.0 * lam * lam * (log(fabs(lam / mu2)) - 5.0 / 6.0);
         }
     }
     // Top contribution
-    double top_mass = top_mass_squared(fields, params);
+    double lam = top_mass_squared(fields, params);
 
-    if (top_mass != 0) {
-        loop += -12.0 * pow(top_mass, 2) * (log(fabs(top_mass) / mu2) - 1.5);
+    if (lam != 0) {
+        loop += -12.0 * lam * lam * (log(fabs(lam) / mu2) - 1.5);
     }
 
-    return loop / (64.0 * pow(M_PI, 2));
+    return loop / (64.0 * M_PI * M_PI);
 }
 
 /**
@@ -565,8 +566,8 @@ double potential_eff(Fields<double> &fields, Parameters<double> &params) {
  */
 double potential_one_loop_deriv(
         Fields<double> &fields, Parameters<double> &params, int fld) {
-    double mu2 = pow(params.mu, 2);
 
+    double mu2 = pow(params.mu, 2);
     double loop = 0.0;
 
     // Sum of scalar contributions
@@ -588,17 +589,17 @@ double potential_one_loop_deriv(
         double dlam = std::get<1>(tup);
 
         if (fabs(lam) > 1e-8)
-            loop += 3.0 * lam * dlam * (log(fabs(lam) / mu2) - 1.0 / 3.0);
+            loop += lam * dlam * (3.0 * log(fabs(lam) / mu2) - 1.0);
     }
     // Top contribution
-    double mtop_sqr = top_mass_squared(fields, params);
+    double lam = top_mass_squared(fields, params);
     // Factor of 3 for colors and 2 for spins, 2 for left-right
-    if (mtop_sqr != 0) {
-        double dmtop_sqr = top_mass_squared_deriv(fields, params, fld);
-        loop += -12.0 * mtop_sqr * dmtop_sqr * (log(fabs(mtop_sqr) / mu2) - 1.0);
+    if (lam != 0) {
+        double dlam = top_mass_squared_deriv(fields, params, fld);
+        loop += -12.0 * lam * dlam * (log(fabs(lam) / mu2) - 1.0);
     }
 
-    return loop / (32.0 * pow(M_PI, 2));
+    return loop / (32.0 * M_PI * M_PI);
 }
 
 /**
@@ -614,13 +615,10 @@ double potential_one_loop_deriv(
 double potential_one_loop_deriv(Fields<double> &fields,
                                 Parameters<double> &params,
                                 int fld1, int fld2) {
-    double mu2 = pow(params.mu, 2);
-
+    double mu2 = params.mu * params.mu;
     double loop = 0.0;
 
     // Sum of scalar contributions
-    // Seems like we need to use determinant method for this case when
-    // fld1 == fld2 and fields[fld1] == 0
     auto scalar_masses = scalar_squared_masses_deriv_fld(fields, params, fld1, fld2);
     for (auto tup: scalar_masses) {
         double lam = std::get<0>(tup);
@@ -628,7 +626,7 @@ double potential_one_loop_deriv(Fields<double> &fields,
         double dlam2 = std::get<2>(tup);
         double d2lam = std::get<3>(tup);
 
-        loop += lam * d2lam * (log(fabs(lam) / mu2) - 1);
+        loop += lam * d2lam * (log(fabs(lam) / mu2) - 1.0);
         loop += dlam1 * dlam2 * log(fabs(lam) / mu2);
     }
     #ifdef SCALAR_ONLY
@@ -645,22 +643,22 @@ double potential_one_loop_deriv(Fields<double> &fields,
         double d2lam = std::get<1>(gauge_masses3[i]);
 
         if (lam != 0.0) {
-            loop += 3.0 * lam * d2lam * (log(fabs(lam) / mu2) - 1.0);
-            loop += 3.0 * dlam1 * dlam2 * (log(fabs(lam) / mu2) + 2.0 / 3.0);
+            loop += lam * d2lam * (3.0 * log(fabs(lam) / mu2) - 1.0);
+            loop += dlam1 * dlam2 * (3.0 * log(fabs(lam) / mu2) + 2.0);
         }
     }
     // Top contribution
-    double mtop_sqr = top_mass_squared(fields, params);
+    double lam = top_mass_squared(fields, params);
     // Factor of 3 for colors and 2 for spins and 2 for right-left
-    if (mtop_sqr != 0) {
-        double lam1 = top_mass_squared_deriv(fields, params, fld1);
-        double lam2 = top_mass_squared_deriv(fields, params, fld2);
+    if (lam != 0) {
+        double dlam1 = top_mass_squared_deriv(fields, params, fld1);
+        double dlam2 = top_mass_squared_deriv(fields, params, fld2);
         double d2lam = top_mass_squared_deriv(fields, params, fld1, fld2);
-        loop += -12.0 * mtop_sqr * d2lam * (log(fabs(mtop_sqr) / mu2) - 1.0);
-        loop += -12.0 * lam1 * lam2 * log(fabs(mtop_sqr) / mu2);
+        loop += -12.0 * lam * d2lam * (log(fabs(lam) / mu2) - 1.0);
+        loop += -12.0 * dlam1 * dlam2 * log(fabs(lam) / mu2);
     }
 
-    return loop / (32.0 * pow(M_PI, 2));
+    return loop / (32.0 * M_PI * M_PI);
 }
 
 /**
@@ -676,8 +674,8 @@ double potential_one_loop_deriv(Fields<double> &fields,
 double potential_one_loop_deriv_fld_par(
         Fields<double> &fields, Parameters<double> &params,
         int fld, int par) {
-    double mu2 = pow(params.mu, 2);
 
+    double mu2 = params.mu * params.mu;
     double loop = 0.0;
 
     // Sum of scalar contributions
@@ -688,12 +686,12 @@ double potential_one_loop_deriv_fld_par(
         double dlam2 = std::get<2>(tup);
         double d2lam = std::get<3>(tup);
 
-        loop += lam * d2lam * (log(fabs(lam) / mu2) - 1);
+        loop += lam * d2lam * (log(fabs(lam) / mu2) - 1.0);
         loop += dlam1 * dlam2 * log(fabs(lam) / mu2);
     }
     // No gauge contribution because gauge masses do not depend on parameters.
 
-    return loop / (32.0 * pow(M_PI, 2));
+    return loop / (32.0 * M_PI * M_PI);
 }
 
 /**
@@ -725,7 +723,7 @@ double potential_eff_deriv(Fields<double> &fields, Parameters<double> &params,
 }
 
 /**
- * Compute the second derivative wrt a field and a parameter of the effective
+ * Compute the second derivative wrt a field, and a parameter of the effective
  * scalar potential
  * @param fields 2HDM fields
  * @param params 2HDM parameters

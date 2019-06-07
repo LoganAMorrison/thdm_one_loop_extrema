@@ -6,37 +6,132 @@
 #include "thdm/potentials.hpp"
 #include "thdm/fields.hpp"
 #include "thdm/parameters.hpp"
+#include "thdm/scalar_masses.hpp"
+#include "thdm/gauge_masses.hpp"
+#include "thdm/fermion_masses.hpp"
+#include "thdm/model.hpp"
+#include <tuple>
+#include <vector>
+#include <cmath>
+#include <string>
 
 using namespace thdm;
 
+/**
+ * From the file stream, read in the next 'point' and return a Point object.
+ * @param file file stream
+ * @return Point containing parameters, normal and charge breaking vacuua.
+ */
+Point read_in_next_point(std::ifstream &file) {
+    std::string value;
+    Parameters<double> params{};
+    // Read in all parameters
+    getline(file, value, ',');
+    params.m112 = std::stod(value);
+    getline(file, value, ',');
+    params.m122 = std::stod(value);
+    getline(file, value, ',');
+    params.m222 = std::stod(value);
+    getline(file, value, ',');
+    params.lam1 = std::stod(value);
+    getline(file, value, ',');
+    params.lam2 = std::stod(value);
+    getline(file, value, ',');
+    params.lam3 = std::stod(value);
+    getline(file, value, ',');
+    params.lam4 = std::stod(value);
+    getline(file, value, ',');
+    params.lam5 = std::stod(value);
+    getline(file, value, ',');
+    params.mu = std::stod(value);
+    // Read in normal vacuum
+    Vacuum<double> nvac{};
+    getline(file, value, ',');
+    nvac.vevs[0] = std::stod(value);
+    getline(file, value, ',');
+    nvac.vevs[1] = std::stod(value);
+    getline(file, value, ',');
+    nvac.vevs[2] = std::stod(value);
+    // Read in charge-breaking vacuum
+    Vacuum<double> cbvac{};
+    getline(file, value, ',');
+    cbvac.vevs[0] = std::stod(value);
+    getline(file, value, ',');
+    cbvac.vevs[1] = std::stod(value);
+    getline(file, value);
+    cbvac.vevs[2] = std::stod(value);
+
+    return Point{params, nvac, cbvac};
+}
+
 int main() {
+
+
     Parameters<double> params{};
     Vacuum<double> nvac{};
     Vacuum<double> cbvac{};
     Fields<double> fields{};
-    params.m112 = -46093.5402300992;
-    params.m122 = -899.700385043558;
-    params.m222 = -44737.1716396116;
-    params.lam1 = 1.63487525949677;
-    params.lam2 = 1.48074031509965;
-    params.lam3 = 1.58032039140444;
-    params.lam4 = 0.100046482470595;
-    params.lam5 = 0.0140615017356978;
-    params.yt = 1.02362273008221;
+    params.m112 = -56769.1625189425;
+    params.m122 = 11298.9441043711;
+    params.m222 = -21800.5075577879;
+
+    params.lam1 = 5.08772715231133;
+    params.lam2 = 0.657186787219266;
+    params.lam3 = 1.94804091410591;
+    params.lam4 = 2.20182701539137;
+    params.lam5 = -0.570051230985773;
+    params.yt = 1.02110482180414;
     params.mu = 246;
-    nvac.vevs[0] = -58.21405413164;
-    nvac.vevs[1] = 239.012811166177;
-    nvac.vevs[2] = -5.2697087226065e-14;
-    cbvac.vevs[0] = -181.801566807722;
-    cbvac.vevs[1] = 90.0784953660183;
-    cbvac.vevs[2] = 130.449202517779;
+    nvac.vevs[0] = -55.7386132154807;
+    nvac.vevs[1] = -239.602184874878;
+    nvac.vevs[2] = 0;
+    cbvac.vevs[0] = 116.453931975248;
+    cbvac.vevs[1] = 118.024105034008;
+    cbvac.vevs[2] = -70.3895466120712;
 
     fields.set_fields(nvac);
-    std::cout << "dv0dr1 = " << potential_tree_deriv(fields, params, 1) << "\n";
-    std::cout << "dv0dr2 = " << potential_tree_deriv(fields, params, 2) << "\n";
+    auto deriv_scalar_masses_r1 = scalar_squared_masses_deriv_fld(fields, params, 1);
+    auto deriv_scalar_masses_r2 = scalar_squared_masses_deriv_fld(fields, params, 2);
+    auto deriv_gauge_masses_r1 = gauge_squared_masses_deriv(fields, params, 1);
+    auto deriv_gauge_masses_r2 = gauge_squared_masses_deriv(fields, params, 2);
+    auto top_masses = top_mass_squared(fields, params);
+    auto deriv_top_masses_r1 = top_mass_squared_deriv(fields, params, 1);
+    auto deriv_top_masses_r2 = top_mass_squared_deriv(fields, params, 2);
+    auto deriv_tree_pot_r1 = potential_tree_deriv(fields, params, 1);
+    auto deriv_tree_pot_r2 = potential_tree_deriv(fields, params, 2);
 
-    std::cout << "dv1dr1 = " << potential_one_loop_deriv(fields, params, 1) << "\n";
-    std::cout << "dv1dr2 = " << potential_one_loop_deriv(fields, params, 2) << "\n";
+    std::cout << "Masses and derivs r1: \n";
+    for (auto tup: deriv_scalar_masses_r1) {
+        std::cout << "mass, deriv = " << sqrt(std::get<0>(tup)) << ", " << std::get<1>(tup) << "\n";
+    }
+    for (auto tup: deriv_gauge_masses_r1) {
+        std::cout << "mass, deriv = " << sqrt(std::get<0>(tup)) << ", " << std::get<1>(tup) << "\n";
+    }
+    std::cout << "mass, deriv = " << sqrt(top_masses) << ", " << deriv_top_masses_r1 << "\n";
+    std::cout << "Masses and derivs r2: \n";
+    for (auto tup: deriv_scalar_masses_r2) {
+        std::cout << "mass, deriv = " << sqrt(std::get<0>(tup)) << ", " << std::get<1>(tup) << "\n";
+    }
+    for (auto tup: deriv_gauge_masses_r2) {
+        std::cout << "mass, deriv = " << sqrt(std::get<0>(tup)) << ", " << std::get<1>(tup) << "\n";
+    }
+    std::cout << "mass, deriv = " << sqrt(top_masses) << ", " << deriv_top_masses_r2 << "\n";
+
+
+    std::cout << "tree deriv r1: " << deriv_tree_pot_r1 << std::endl;
+    std::cout << "tree deriv r2: " << deriv_tree_pot_r2 << std::endl;
+
+    fields.set_fields(nvac);
+    std::cout << "potential eff derivs: " << std::endl;
+    for (int i = 1; i <= 8; i++) {
+        std::cout << potential_eff_deriv(fields, params, i) << std::endl;
+    }
+
+    fields.set_fields(cbvac);
+    std::cout << "potential eff derivs: " << std::endl;
+    for (int i = 1; i <= 8; i++) {
+        std::cout << potential_eff_deriv(fields, params, i) << std::endl;
+    }
 
 
     return 0;

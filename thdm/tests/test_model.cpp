@@ -15,55 +15,32 @@
 
 using namespace thdm;
 
-void display_model(Model &model) {
-    std::cout << "Deepest Normal" << std::endl;
-    std::cout << model.one_loop_deepest_normal << std::endl;
-    std::cout << "Deepest CB" << std::endl;
-    std::cout << model.one_loop_deepest_cb << std::endl;
-    std::cout << "Deepest:" << std::endl;
-    std::cout << model.one_loop_deepest << std::endl;
-    std::cout << "Has CB and normal mininima:" << std::endl;
-    std::cout << (model.has_cb_min && model.has_normal_min) << std::endl;
-    std::cout << "Is CB the deepest:" << std::endl;
-    std::cout << (model.is_deepest_cb) << std::endl;
 
-    std::cout << "All One Loop Extrema" << std::endl;
-    std::cout << "--------------------" << std::endl;
-    for (const auto &vac: model.one_loop_vacuua)
-        std::cout << vac << std::endl;
+class ModelTest : public ::testing::Test {
+protected:
+    void SetUp() override {
 
-    std::cout << "All Tree Extrema" << std::endl;
-    std::cout << "----------------" << std::endl;
-    for (const auto &vac: model.tree_vacuua)
-        std::cout << vac << std::endl;
-}
-
-TEST(ModelTest, Test1) {
-    double mu = 246.0;
-    std::cout << std::setprecision(15);
-    std::cout << std::boolalpha;
-
-    Model model;
-    bool done = false;
-    while (!done) {
-        try {
-            model = Model(mu);
-            done = true;
-        } catch (...) {
-            done = false;
-        }
     }
 
-    Vacuum<double> nvac = model.one_loop_deepest_normal;
-    Vacuum<double> cbvac = model.one_loop_deepest_cb;
+    double mu = 246.0;
+    Model model{mu};
+    Fields<double> fields{};
+};
 
-    std::cout << std::endl;
-    std::cout << "nvac: " << nvac << std::endl;
-    std::cout << "cbvac: " << cbvac << std::endl;
-    std::cout << "nvac < cbvac: " << (nvac < cbvac) << std::endl;
+TEST_F(ModelTest, Derivatives) {
+    fields.set_fields(model.one_loop_vacuua[0]);
+    std::cout << "Normal Vacuum: " << model.one_loop_vacuua[0] << "\n";
+    std::cout << "Normal vacuum derivs: \n";
+    for (int i = 1; i <= 8; i++) {
+        std::cout << potential_eff_deriv(fields, model.params, i) << "\n";
+    }
 
-    display_model(model);
-
+    fields.set_fields(model.one_loop_vacuua[1]);
+    std::cout << "CB Vacuum: " << model.one_loop_vacuua[1] << "\n";
+    std::cout << "CB vacuum derivs: \n";
+    for (int i = 1; i <= 8; i++) {
+        std::cout << potential_eff_deriv(fields, model.params, i) << "\n";
+    }
 }
 
 
