@@ -7,7 +7,7 @@ path = os.path.dirname(os.path.abspath(__file__))
 path = os.path.join(path, "..", '..', "run_data", "potentials")
 file_names = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
 
-for i in range(0, 100):
+for i in range(0, 11):
     file_path = os.path.join(path, 'potential_' + str(i) + '.csv')
     data = np.genfromtxt(file_path, delimiter=',', skip_header=True).T
 
