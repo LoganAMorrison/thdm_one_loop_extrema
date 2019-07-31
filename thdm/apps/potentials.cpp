@@ -47,7 +47,7 @@ struct PotentialData {
  */
 std::vector<Point> read_data_from_file() {
     static std::string project_path = "/Users/loganmorrison/CLionProjects/thdm_one_loop_extrema";
-    static std::string type_a1_path = project_path + "/run_data/type_a1.csv";
+    static std::string type_a1_path = project_path + "/run_data/type_a2.csv";
 
     std::ifstream infile(type_a1_path);
     std::vector<Point> data;
@@ -191,7 +191,7 @@ int main() {
     for (auto &point: points) {
         // Create file name
         std::string project_path = "/Users/loganmorrison/CLionProjects/thdm_one_loop_extrema";
-        std::string file = project_path + "/run_data/potentials/potential_" +
+        std::string file = project_path + "/run_data/potentials/type_a2/potential_" +
                 std::to_string(counter) + ".csv";
         auto data = compute_potential_data(point);
         save_data_to_file(data, file);

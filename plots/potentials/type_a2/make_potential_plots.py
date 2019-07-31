@@ -4,7 +4,7 @@ import os
 
 # get directory
 path = os.path.dirname(os.path.abspath(__file__))
-path = os.path.join(path, "..", '..', "run_data", "potentials")
+path = os.path.join(path, "..", '..', '..', "run_data", "potentials", "type_a2")
 file_names = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
 
 for i in range(0, 13):
@@ -18,5 +18,5 @@ for i in range(0, 13):
     plt.ylabel(r"$V_{\mathrm{eff}} / \mu^4$", fontsize=16)
     plt.legend()
     plt.tight_layout()
-    plt.savefig('potentials/potential_' + str(i) + ".pdf")
+    plt.savefig('potential_' + str(i) + ".pdf")
     plt.close('all')

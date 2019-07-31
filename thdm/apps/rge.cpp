@@ -55,7 +55,7 @@ struct RGEData {
 std::vector<Point> read_data_from_file() {
     std::string project_path = "/Users/loganmorrison/CLionProjects/"
                                "thdm_one_loop_extrema";
-    std::string type_a1_path = project_path + "/run_data/type_a1.csv";
+    std::string type_a1_path = project_path + "/run_data/type_a2.csv";
 
     std::ifstream infile(type_a1_path);
     std::vector<Point> data;
@@ -246,7 +246,7 @@ int main() {
     int counter = 0; // Counter for naming the files.
     for (const auto &point: data) {
         std::string save_file = (project_path +
-                "/run_data/RGE/rge_" + std::to_string(counter) + ".csv");
+                "/run_data/RGE/type_a2/rge_" + std::to_string(counter) + ".csv");
         try {
             auto rge_data = run_point(point);
             save_rge_data(rge_data, save_file);
